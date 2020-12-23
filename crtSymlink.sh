@@ -11,6 +11,3 @@ mkdir $HOME/.emacs.d
 ln -s $HOME/UbuntuDotFiles/.emacs.d/init.el $HOME/.emacs.d/init.el
 cd $HOME/.emacs.d/
 emacs --batch -f batch-byte-compile init.el
-cd $HOME/.fonts/
-wget -q https://github.com/miiton/Cica/releases/download/v5.0.2/Cica_v5.0.2_with_emoji.zip
-unzip -q ../Cica_v5.0.2_with_emoji.zip -d Cica

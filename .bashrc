@@ -128,3 +128,8 @@ if [ -f /usr/bin/google-drive-ocamlfuse ]; then
 		google-drive-ocamlfuse $HOME/GoogleDrive
 	fi
 fi
+
+alias ema="/bin/snap run emacs"
+alias emac="emacsclient -c"
+alias emac_start="/bin/snap run emacs --daemon"
+alias emac_stop="emacsclient -e '(kill-emacs)'"

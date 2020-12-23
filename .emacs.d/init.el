@@ -1,39 +1,30 @@
 ;;; init.el --- emacs initial setting  -*- lexical-binding: t -*-
 ;;; Commentary:
 
-;;; Code:
 
 
-(scroll-bar-mode 0)
-(tool-bar-mode 0)
-(menu-bar-mode 0)
-(setq inhibit-splash-screen t)
-(setq inhibit-startup-message t)
-(set-frame-parameter nil 'fullscreen 'maximized)
+;; Global Settings
 
-;; Save the file specified code with basic utf-8 if it exists
-(set-language-environment "Japanese")
-(prefer-coding-system 'utf-8)
 
-;; theme
-(load-theme 'misterioso t)
-;; font
-(add-to-list 'default-frame-alist '(font . "Cica-18"))
+
+
+(setq visible-bell t) ;; beep音の代わりに画面フラッシュ
+(column-number-mode t) ;;モードラインに列番号表示
+
+
+;; シンボリックリンクの読み込みを許可
+(setq vc-follow-symlinks t)
+
 ;; Cursor Shape
-(setq-default cursor-type 'bar)
-(defface hlline-face
-  '((((class color)
-      (background dark))
-     (:background "gray20"))
-    (((class color)
-      (background light))
-     (:background "ForestGreen"))
-    (t
-    ()))
-"*Face used by hl-line.")
-(setq hl-line-face 'hlline-face)
-;; (setq hl-line-face 'underline) ; 下線
-(global-hl-line-mode)
+
+;; Disable line numbers for some modes
+(dolist (mode '(org-mode-hook
+                term-mode-hook
+                shell-mode-hook
+                treemacs-mode-hook
+                eshell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
 
 
 ;; Speed up startup
@@ -42,89 +33,126 @@
 (setq file-name-handler-alist nil)
 (setq gc-cons-threshold (* 1024 1024 100))
 (add-hook 'emacs-startup-hook
-		  (lambda ()
-			"Restore defalut values after startup."
-			(setq file-name-handler-alist default-file-name-handler-alist)
-			(setq gc-cons-threshold default-gc-cons-threshold)))
+          (lambda ()
+            "Restore defalut values after startup."
+            (setq file-name-handler-alist default-file-name-handler-alist)
+            (setq gc-cons-threshold default-gc-cons-threshold)))
 
 ;; <leaf-install-code>
-  (eval-and-compile
-    (customize-set-variable
-     'package-archives '(("org" . "https://orgmode.org/elpa/")
-                         ("melpa" . "https://melpa.org/packages/")
-                         ("gnu" . "https://elpa.gnu.org/packages/")))
-    (package-initialize)
-    (unless (package-installed-p 'leaf)
-      (package-refresh-contents)
-      (package-install 'leaf))
-
-    (leaf leaf-keywords
-      :ensure t
-      :init
-      ;; optional packages if you want to use :hydra, :el-get, :blackout,,,
-      (leaf hydra :ensure t)
-      (leaf el-get :ensure t)
-      (leaf blackout :ensure t)
-      :config
-      ;; initialize leaf-keywords.el
-      (leaf-keywords-init)))
-  ;; </leaf-install-code>
-
-  ;; Now you can use leaf!
-  (leaf leaf-tree :ensure t)
-  (leaf leaf-convert :ensure t)
-  (leaf transient-dwim
+(eval-and-compile
+  (customize-set-variable
+   'package-archives '(("org" . "https://orgmode.org/elpa/")
+                       ("melpa" . "https://melpa.org/packages/")
+                       ("gnu" . "https://elpa.gnu.org/packages/")))
+  (package-initialize)
+  (unless (package-installed-p 'leaf)
+    (package-refresh-contents)
+    (package-install 'leaf))
+  
+  (leaf leaf-keywords
     :ensure t
-    :bind (("M-=" . transient-dwim-dispatch)))
-
-  ;; You can also configure builtin package via leaf!
-  (leaf cus-start
-    :doc "define customization properties of builtins"
-    :tag "builtin" "internal"
-    :custom ((user-full-name . "Hideo Kawamura")
-             (user-mail-address . "hideo.90.kawamura@gmail.com")
-             (user-login-name . "kawa90")
-             (truncate-lines . t)
-             (menu-bar-mode . t)
-             (tool-bar-mode . nil)
-             (scroll-bar-mode . nil)
-             (indent-tabs-mode . nil)))
-
-  (leaf autorevert
-    :doc "revert buffers when files on disk change"
-    :tag "builtin"
-    :custom ((auto-revert-interval . 0.1))
-    :global-minor-mode global-auto-revert-mode)
-
-  ;; Nest package configurations
-  (leaf flycheck
-    :doc "On-the-fly syntax checking"
-    :emacs>= 24.3
-    :ensure t
-    :bind (("M-n" . flycheck-next-error)
-           ("M-p" . flycheck-previous-error))
-    :custom ((flycheck-emacs-lisp-initialize-packages . t))
-    (custom-set-variables
-     '(flycheck-disabled-checkers '(javascript-jshint javascript-jscs)))
-    :hook (emacs-lisp-mode-hook lisp-interaction-mode-hook)
+    :init
+    ;; optional packages if you want to use :hydra, :el-get, :blackout,,,
+    (leaf hydra :ensure t)
+    (leaf el-get :ensure t)
+    (leaf blackout :ensure t)
     :config
-    (flycheck-add-mode 'javascript-eslint 'web-mode)
+    ;; initialize leaf-keywords.el
+    (leaf-keywords-init)))
+;; </leaf-install-code>
 
-    (leaf flycheck-package
-      :doc "A Flycheck checker for elisp package authors"
-      :ensure t
-      :config
-      (flycheck-package-setup))
+;; Now you can use leaf!
+(leaf leaf-tree :ensure t)
+(leaf leaf-convert :ensure t)
+(leaf transient-dwim
+  :ensure t
+  :bind (("M-=" . transient-dwim-dispatch)))
 
-    (leaf flycheck-elsa
-      :doc "Flycheck for Elsa."
-      :emacs>= 25
-      :ensure t
-      :config
-      (flycheck-elsa-setup))
+;; You can also configure builtin package via leaf!
+(leaf cus-start
+  :doc "define customization properties of builtins"
+  :tag "builtin" "internal"
+  :custom ((user-full-name . "Hideo Kawamura")
+           (user-mail-address . "hideo.90.kawamura@gmail.com")
+           (user-login-name . "kawa90")
+           (truncate-lines . t)
+           (menu-bar-mode . nil) ; Disable the menu bar
+           (tool-bar-mode . nil) ; Disable the toolbar
+           (scroll-bar-mode . nil) ; Disable visible scrollbar
+           (indent-tabs-mode . nil)))
 
-    ;; ...
-    )
+(leaf startup
+  :doc "process Emacs shell arguments"
+  :tag "builtin" "internal"
+  :custom ((inhibit-splash-screen . t)
+           (inhibit-startup-message . t)
+           ))
+
+(leaf autorevert
+  :doc "revert buffers when files on disk change"
+  :tag "builtin"
+  :custom ((auto-revert-interval . 0.1))
+  :global-minor-mode global-auto-revert-mode)
+
+;; Nest package configurations
+(leaf init-loader
+  :doc "Loader for configuration files"
+  :added "2020-12-21"
+  :url "https://github.com/emacs-jp/init-loader/"
+  :ensure t
+  :config
+  (init-loader-load (expand-file-name "inits" user-emacs-directory))
+  )
+
+;; UI
+;; UI
+;; UI
+
+(leaf flycheck
+  :doc "On-the-fly syntax checking"
+  :emacs>= 24.3
+  :ensure t
+  :bind (("M-n" . flycheck-next-error)
+         ("M-p" . flycheck-previous-error))
+  :custom ((flycheck-emacs-lisp-initialize-packages . t))
+  (custom-set-variables
+   '(flycheck-disabled-checkers '(javascript-jshint javascript-jscs)))
+  :hook (emacs-lisp-mode-hook lisp-interaction-mode-hook)
+  :config
+  (flycheck-add-mode 'javascript-eslint 'web-mode)
+
+  (leaf flycheck-package
+    :doc "A Flycheck checker for elisp package authors"
+    :ensure t
+    :config
+    (flycheck-package-setup))
+
+  (leaf flycheck-elsa
+    :doc "Flycheck for Elsa."
+    :emacs>= 25
+    :ensure t
+    :config
+    (flycheck-elsa-setup))
+
+  ;; ...
+  )
+
+;; font install
+;; M-x all-the-icons-install-fonts
+;; fc-cache -f -v
+(leaf all-the-icons
+  :doc "A library for inserting Developer icons"
+  :req "emacs-24.3" "memoize-1.0.1"
+  :tag "lisp" "convenient" "emacs>=24.3"
+  :added "2020-12-19"
+  :url "https://github.com/domtronn/all-the-icons.el"
+  :emacs>= 24.3
+  :ensure t
+  :after memoize)
+
+(leaf aggressive-indent
+  :ensure t
+  :hook ((emacs-lisp-mode-hook css-mode-hook) . aggressive-indent-mode))
 
 (leaf ivy
   :doc "Incremental Vertical completYon"
@@ -220,7 +248,7 @@
   (doom-themes-enable-bold . nil)
   :config
   (load-theme  'doom-dark+ t)
-  ;  (load-theme 'doom-tomorrow-night t)
+                                        ;  (load-theme 'doom-tomorrow-night t)
   
   (doom-themes-neotree-config)
   (doom-themes-org-config)
@@ -284,44 +312,7 @@
   :config
   (add-to-list 'company-backends 'company-c-headers))
 
-;;;
-;;; Org
-;;; https://solist.work/blog/posts/information-organizize-method/
-(leaf org
-  :bind (("C-c a" . org-agenda) ("C-c c" . org-capture))
-  :init
-    (defun my:howm-create-file ()
-    "Make howm create file with 'org-capture'."
-    (interactive)
-    (format-time-string "~/GoogleDrvie/howm/%Y/%m/%Y%m%d%H%M.md" (current-time)))
-  :config
-;  (bind-key "C-c a" 'org-agenda)
-;  (bind-key "C-c c" 'org-capture)
-  (setq org-log-done 'time)
-  (setq org-use-speed-commands t)
-  (setq org-src-fontify-natively t)
-  (setq org-agenda-files '("~/GoogleDrive/howm/org/task.org"))
-  (setq org-capture-templates
-		'(("t" " Task" entry (file+headline "~/GoogleDrive/howm/org/task.org" "Task")
-		   "** TODO %?\n SCHEDULED: %^t \n" :prepend t)
-		  ("m" " Memo" plain (file my:howm-create-file)
-		   "# memo: %?\n%U %i")
-		  ("n" " Note" plain (file my:howm-create-file)
-		   "# note: %?\n%U %i")
-		  ("p" "★ Perl" plain (file my:howm-create-file)
-		   "# Perl: %?\n%U %i\n\n>>>\n\n```perl\n%i\n```")
-		  ("e" "★ Emacs" plain (file my:howm-create-file)
-		   "# emacs: %?\n%U %i\n\n```emacs-lisp\n%i\n```")
-		  ("l" "★ Linux" plain (file my:howm-create-file)
-		   "# linux: %?\n%U %i")))
-  :init
-  ;; Maximize the org-capture buffer
-  (defvar my:org-capture-before-config nil
-    "Window configuration before 'org-capture'.")
-  (defadvice org-capture (before save-config activate)
-    "Save the window configuration before 'org-capture'."
-    (setq my:org-capture-before-config (current-window-configuration)))
-  (add-hook 'org-capture-mode-hook 'delete-other-windows))
+
 
 (leaf open-junk-file
   :ensure t
@@ -331,17 +322,17 @@
   :init
   ;; https://qiita.com/zonkyy/items/eba6bc64f66d278f0032
   (leaf em-glob	:require t
-	:config
-	(defvar junk-file-dir "~/GoogleDrive/howm/junk/")
-	(defun open-last-junk-file ()
-	  "Open last created junk-file."
-	  (interactive)
-	  (find-file
-	   (car
-		(last (eshell-extended-glob
-			   (concat
-				(file-name-as-directory junk-file-dir)
-				"*.*.*"))))))))
+    :config
+    (defvar junk-file-dir "~/GoogleDrive/howm/junk/")
+    (defun open-last-junk-file ()
+      "Open last created junk-file."
+      (interactive)
+      (find-file
+       (car
+        (last (eshell-extended-glob
+               (concat
+                (file-name-as-directory junk-file-dir)
+                "*.*.*"))))))))
 
 ;;;
 ;;; Selected
@@ -484,6 +475,135 @@
 	(interactive)
 	(compile "/usr/lib/mozc/mozc_tool --mode=hand_writing")))
 
+(leaf markdown-mode
+  :ensure t
+  :mode ("\\.md\\'" . markdown-mode)
+  :config
+  (leaf markdown-toc :ensure t)
+  (setq markdown-command "pandoc")
+  (setq markdown-italic-underscore t)
+  (setq markdown-asymmetric-header t)
+  (setq markdown-fontify-code-blocks-natively t)
+  (setq markdown-content-type "application/xhtml+xml")
+  (setq markdown-css-paths '("https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css"
+							 "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/github.min.css"))
+  (setq markdown-xhtml-header-content "
+  <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+  <style>
+  body {
+    box-sizing: border-box;
+    max-width: 740px;
+    width: 100%;
+    margin: 40px auto;
+    padding: 0 10px;
+  }
+  </style>
+  <link rel='stylesheet' href='https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/default.min.css'>
+  <script src='https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js'></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.add('markdown-body');
+    document.querySelectorAll('pre code').forEach((code) => {
+      if (code.className != 'mermaid') {
+        hljs.highlightBlock(code);
+      }
+    });
+  });
+  </script>
+  <script src='https://unpkg.com/mermaid@8.4.8/dist/mermaid.min.js'></script>
+  <script>
+  mermaid.initialize({
+    theme: 'default',  // default, forest, dark, neutral
+    startOnLoad: true
+  });
+  </script>
+  ")
+
+  :bind ("C-x m" . hydra-markdown/body)
+  :hydra
+  (hydra-markdown
+   (:color red :hint nil)
+   "
+    Markdown: _i_talic  消線:_x_  _f_ootnote  _t_able  t_o_c  _e_dit-code:_a_bort  pre_v_iew  md2_p_df  md2_d_ocx"
+   ("i" markdown-insert-italic)
+   ("x" markdown-insert-strike-through)
+   ("t" markdown-insert-table)
+   ("o" markdown-toc-generate-or-refresh-toc)
+   ("f" markdown-insert-footnote)
+   ("e" markdown-edit-code-block)
+   ("a" edit-indirect-abort)
+   ("v" markdown-preview)
+   ;; Pndoc
+   ("p" md2pdf)
+   ("d" md2docx)
+   ("<muhenkan>" nil))
+
+  :init
+  (defun md2pdf ()
+	"Generate pdf from currently open markdown."
+	(interactive)
+	(let ((filename (buffer-file-name (current-buffer))))
+	  ;; Use wkhtmltopdf without latex
+	  (shell-command-to-string
+	   (concat "pandoc "
+			   filename
+			   " -f markdown -t html5 -o "
+			   (file-name-sans-extension filename)
+			   ".pdf"))
+	  (shell-command-to-string
+	   (concat "evince "
+			   (file-name-sans-extension filename)
+			   ".pdf"))))
+
+  (defun md2docx ()
+	"Generate docx from currently open markdown."
+	(interactive)
+	(let ((filename (buffer-file-name (current-buffer))))
+	  (shell-command-to-string
+	   (concat "pandoc "
+			   filename
+			   " -t docx -o "
+			   (file-name-sans-extension filename)
+			   ".docx -V mainfont=IPAPGothic -V fontsize=16pt --highlight-style=zenburn"))
+	  (shell-command-to-string
+	   (concat "xdg-open "
+			   (file-name-sans-extension filename)
+			   ".docx")))))
+
+(leaf magit
+  :doc "A Git porcelain inside Emacs."
+  :req "emacs-25.1" "async-20200113" "dash-20200524" "git-commit-20200516" "transient-20200601" "with-editor-20200522"
+  :tag "vc" "tools" "git" "emacs>=25.1"
+  :added "2020-12-16"
+  :emacs>= 25.1
+  :ensure t
+  :after git-commit with-editor)
+
+;; Dockerfile 用の設定
+(leaf dockerfile-mode
+  :ensure t
+  :mode (("Dockerfile" . dockerfile-mode))
+  )
+
+;; Dashboard
+(dashboard-setup-startup-hook)
+(leaf dashboard
+  :doc "A startup screen extracted from Spacemacs"
+  :req "emacs-25.3" "page-break-lines-0.11"
+  :tag "dashboard" "tools" "screen" "startup" "emacs>=25.3"
+  :added "2020-12-17"
+  :url "https://github.com/emacs-dashboard/emacs-dashboard"
+  :emacs>= 25.3
+  :ensure t
+  :after page-break-lines
+  :config (dashboard-setup-startup-hook))
+
+(setq dashboard-items '((recents  . 5)
+                        (bookmarks . 5)
+                        (projects . 5)
+                        (agenda . 5)
+                        (registers . 5)))
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -502,10 +622,14 @@
  '(eww-search-prefix "https://www.google.co.jp/search?&q=" t)
  '(flycheck-emacs-lisp-initialize-packages t t)
  '(indent-tabs-mode nil)
+ '(inhibit-splash-screen t)
+ '(inhibit-startup-message t)
+ '(inhibit-startup-screen t)
  '(ivy-initial-inputs-alist nil)
  '(ivy-prescient-retain-classic-highlighting t)
  '(ivy-use-selectable-prompt t)
- '(menu-bar-mode t)
+ '(menu-bar-mode nil)
+ '(org-agenda-files (quote ("~/Documents/org")))
  '(package-archives
    (quote
     (("org" . "https://orgmode.org/elpa/")
@@ -513,7 +637,7 @@
      ("gnu" . "https://elpa.gnu.org/packages/"))))
  '(package-selected-packages
    (quote
-    (flycheck-elsa flycheck-package flycheck transient-dwim leaf-convert leaf-tree leaf-keywords hydra el-get blackout)))
+    (dashboard transient-dwim selected open-junk-file neotree mozc-cand-posframe markdown-toc magit leaf-tree leaf-convert ivy-prescient hydra howm google-this git-timemachine flycheck-package flycheck-elsa el-get doom-themes dockerfile-mode diff-hl counsel company-c-headers blackout bind-key aggressive-indent)))
  '(prescient-aggressive-file-save t)
  '(scroll-bar-mode nil)
  '(tool-bar-mode nil)

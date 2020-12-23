@@ -12,8 +12,10 @@ cd $HOME
 sudo apt install build-essential git
 ## Emacs
 sudo apt install zile
-sudo apt install emacs-gtk emacs-mozc-bin
+sudo apt install emacs-mozc-bin
+sudo snap install emacs --classic --beta
 sudo apt install pandoc
+sudo apt install ripgrep fd-find
 ## Utils
 ### Google Drive
 apt-get install google-drive-ocamlfuse
@@ -26,6 +28,8 @@ sudo apt -y install indicator-stickynotes
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
 nvm install stable --latest-npm
 nvm alias default stable
+## typescript-language-server
+npm install -g typescript-language-server
 # Docer
 ## See https://docs.docker.com/engine/install/debian/
 sudo apt-get -y install \
