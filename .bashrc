@@ -131,5 +131,6 @@ fi
 
 alias ema="/bin/snap run emacs"
 alias emac="emacsclient -c"
+alias emanc="emacsclient -nc"
 alias emac_start="/bin/snap run emacs --daemon"
 alias emac_stop="emacsclient -e '(kill-emacs)'"
