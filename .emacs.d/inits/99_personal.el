@@ -9,6 +9,7 @@
 ;;; Org
 ;;; https://solist.work/blog/posts/information-organizize-method/
 (leaf org
+  :leaf-autoload nil
   :bind (("C-c a" . org-agenda) ("C-c c" . org-capture))
   :init
   :config
@@ -57,4 +58,26 @@
   (defadvice org-capture (before save-config activate)
     "Save the window configuration before 'org-capture'."
     (setq my:org-capture-before-config (current-window-configuration)))
-  (add-hook 'org-capture-mode-hook 'delete-other-windows))
+  (add-hook 'org-capture-mode-hook 'delete-other-windows)
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '(
+                                 (shell . t)
+                                 (python . t)
+                                 (plantuml . t); plantuml script(http://plantuml.sourceforge.net/) `org-plantuml-jar-path' should point to the jar file (when exec mode is `jar')
+                                 (emacs-lisp . t)
+                                 (C . t)
+                                 (calc . t); Poorman's Mathematica
+                                 (dot . t); DOT(http://www.graphviz.org/)
+                                 (gnuplot . t); GnuPlot
+                                 (js . t) ; Javascript
+                                 (latex . t)
+                                 (makefile . t)
+                                 (mscgen . t)) ; message sequence charts(http://www.mcternan.me.uk/mscgen/index.html).
+                               )
+  )
+
+(leaf org-plus-contrib
+  :doc "Outline-based notes management and organizer"
+  :added "2020-12-26"
+  :ensure t)
+

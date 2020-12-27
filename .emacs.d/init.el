@@ -4,9 +4,7 @@
 
 
 ;; Global Settings
-
-
-
+;; Code:
 
 (setq visible-bell t) ;; beep音の代わりに画面フラッシュ
 (column-number-mode t) ;;モードラインに列番号表示
@@ -44,11 +42,23 @@
    'package-archives '(("org" . "https://orgmode.org/elpa/")
                        ("melpa" . "https://melpa.org/packages/")
                        ("gnu" . "https://elpa.gnu.org/packages/")))
+  ;; force to load latest org-mode
+  ;; TODO
+  ;;  (unless package-archive-contents    ;; Refresh the packages descriptions
+  ;;    (message "package-archive-contents")
+  ;;    (package-refresh-contents))
+  ;;  (setq package-load-list '(all))     ;; List of packages to load
+  ;;  (unless (package-installed-p 'org)  ;; Make sure the Org package is
+  ;;    (package-install 'org))           ;; installed, install it if not
+
   (package-initialize)
   (unless (package-installed-p 'leaf)
     (package-refresh-contents)
     (package-install 'leaf))
-  
+  (unless (package-installed-p 'org)
+    (package-refresh-contents)
+    (package-install 'org))
+
   (leaf leaf-keywords
     :ensure t
     :init
@@ -94,7 +104,7 @@
   :custom ((auto-revert-interval . 0.1))
   :global-minor-mode global-auto-revert-mode)
 
-;; Nest package configurations
+
 (leaf init-loader
   :doc "Loader for configuration files"
   :added "2020-12-21"
@@ -105,34 +115,6 @@
   )
 
 
-(leaf flycheck
-  :doc "On-the-fly syntax checking"
-  :emacs>= 24.3
-  :ensure t
-  :bind (("M-n" . flycheck-next-error)
-         ("M-p" . flycheck-previous-error))
-  :custom ((flycheck-emacs-lisp-initialize-packages . t))
-  (custom-set-variables
-   '(flycheck-disabled-checkers '(javascript-jshint javascript-jscs)))
-  :hook (emacs-lisp-mode-hook lisp-interaction-mode-hook)
-  :config
-  (flycheck-add-mode 'javascript-eslint 'web-mode)
-
-  (leaf flycheck-package
-    :doc "A Flycheck checker for elisp package authors"
-    :ensure t
-    :config
-    (flycheck-package-setup))
-
-  (leaf flycheck-elsa
-    :doc "Flycheck for Elsa."
-    :emacs>= 25
-    :ensure t
-    :config
-    (flycheck-elsa-setup))
-
-  ;; ...
-  )
 
 
 (custom-set-variables
@@ -141,6 +123,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(auto-revert-interval 0.1)
+ '(company-idle-delay 0)
+ '(company-minimum-prefix-length 1)
+ '(company-transformers (quote (company-sort-by-occurrence)))
  '(counsel-find-file-ignore-regexp "\\(?:\\.\\(?:\\.?/\\)\\)")
  '(counsel-yank-pop-separator "
 ----------
@@ -148,9 +133,9 @@
  '(custom-set-variables nil t)
  '(doom-themes-enable-bold nil)
  '(doom-themes-enable-italic nil)
- '(eww-history-limit 100 t)
- '(eww-search-prefix "https://www.google.co.jp/search?&q=" t)
- '(flycheck-emacs-lisp-initialize-packages t t)
+ '(eww-history-limit 100)
+ '(eww-search-prefix "https://www.google.co.jp/search?&q=")
+ '(flycheck-emacs-lisp-initialize-packages t)
  '(indent-tabs-mode nil)
  '(inhibit-splash-screen t)
  '(inhibit-startup-message t)
@@ -158,6 +143,7 @@
  '(ivy-initial-inputs-alist nil)
  '(ivy-prescient-retain-classic-highlighting t)
  '(ivy-use-selectable-prompt t)
+ '(ivy-use-virtual-buffers t)
  '(menu-bar-mode nil)
  '(org-agenda-files (quote ("~/Documents/org")))
  '(package-archives

@@ -129,8 +129,12 @@ if [ -f /usr/bin/google-drive-ocamlfuse ]; then
 	fi
 fi
 
-alias ema="/bin/snap run emacs"
+#alias ema="/bin/snap run emacs"
+alias miniemacs="emacs -q -l ~/.emacs.d/minimal-init.el"
+alias ema="emacs -mm"
 alias emac="emacsclient -c"
 alias emanc="emacsclient -nc"
-alias emac_start="/bin/snap run emacs --daemon"
+alias emac_start="emacs --daemon"
 alias emac_stop="emacsclient -e '(kill-emacs)'"
+alias mysync="rsync -av $HOME/Documents/org $HOME/GoogleDrive &"
+alias cpu_temp="vcgencmd measure_temp"

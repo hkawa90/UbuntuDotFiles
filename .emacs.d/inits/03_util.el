@@ -4,6 +4,34 @@
 ;; utility configurations
 
 ;;; Code:
+(leaf flycheck
+  :doc "On-the-fly syntax checking"
+  :emacs>= 24.3
+  :ensure t
+  :bind (("M-n" . flycheck-next-error)
+         ("M-p" . flycheck-previous-error))
+  :custom ((flycheck-emacs-lisp-initialize-packages . t))
+  (custom-set-variables
+   '(flycheck-disabled-checkers '(javascript-jshint javascript-jscs)))
+  :hook (emacs-lisp-mode-hook lisp-interaction-mode-hook)
+  :config
+  (flycheck-add-mode 'javascript-eslint 'web-mode)
+
+  (leaf flycheck-package
+    :doc "A Flycheck checker for elisp package authors"
+    :ensure t
+    :config
+    (flycheck-package-setup))
+
+  (leaf flycheck-elsa
+    :doc "Flycheck for Elsa."
+    :emacs>= 25
+    :ensure t
+    :config
+    (flycheck-elsa-setup))
+
+  ;; ...
+  )
 
 
 (leaf exec-path-from-shell
@@ -14,7 +42,13 @@
   :url "https://github.com/purcell/exec-path-from-shell"
   :emacs>= 24.1
   :ensure t
-  :config (exec-path-from-shell-initialize))
+  :config
+  ;;;(when (daemonp)
+  ;;;(exec-path-from-shell-initialize);)
+  (setq exec-path-from-shell-check-startup-files nil)
+  (setq exec-path-from-shell-arguments '("-l")) ; non-interactive shell is faster.
+  (exec-path-from-shell-copy-envs '("PATH" "MANPATH" "LANG" "LC_ALL" "LC_MESSAGES"))
+  )
 
 ;; ------------------------------------------------------------------------
 ;; EWW (Emacs Web Wowser, Web Browser)
@@ -198,6 +232,22 @@
                  "/search?q=%s&hl=ja&num=10&as_qdr=y5&lr=lang_ja"
                  (upcase (url-hexify-string str))))
   )
+
+(leaf google-translate
+  :doc "Emacs interface to Google Translate."
+  :tag "convenience"
+  :added "2020-12-27"
+  :url "https://github.com/atykhonov/google-translate"
+  :ensure t)
+
+(leaf google-translate-default-ui
+  :doc "default UI for Google Translate"
+  :after google-translate
+  :added "2020-12-27"
+  :leaf-autoload nil
+  :require t)
+
+
 
 
 (leaf open-junk-file

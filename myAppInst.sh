@@ -11,12 +11,16 @@ cd $HOME
 ## Gcc, make
 sudo apt install build-essential git
 ## Emacs
-sudo apt install zile
-sudo apt install emacs-mozc-bin
+sudo apt -y install zile
+sudo apt -y install emacs-mozc-bin
 sudo snap install emacs --classic --beta
-sudo apt install pandoc
-sudo apt install ripgrep fd-find
+sudo apt -y install pandoc
+sudo apt -y install ripgrep fd-find
 ## Utils
+### Graphviz
+sudo apt -y install graphviz
+### Gnuplot
+sudo apt -y install gnuplot-qt
 ### Google Drive
 apt-get install google-drive-ocamlfuse
 ### 付箋紙
