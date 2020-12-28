@@ -40,6 +40,9 @@
           ("cs" " Scrap" plain (file "~/Documents/org/scrap.org")
            "** NOTE %?\n%U %i%x")
           
+          ("s" " Scrap" plain (file "~/Documents/org/scrap.org")
+           "** Scrap %x" :immediate-finish t)
+          
           ("m" " Memo")
           ("mm" " Memo" plain (file "~/Documents/org/memo.org")
            "** MEMO %?\n%U %i")
@@ -81,3 +84,12 @@
   :added "2020-12-26"
   :ensure t)
 
+(leaf org-variable-pitch
+  :doc "Minor mode for variable pitch text in org mode."
+  :req "emacs-25"
+  :tag "faces" "emacs>=25"
+  :added "2020-12-27"
+  :url "https://dev.gkayaalp.com/elisp/index.html#ovp"
+  :emacs>= 25
+  :ensure t
+  :hook (org-mode-hook . org-variable-pitch-minor-mode))

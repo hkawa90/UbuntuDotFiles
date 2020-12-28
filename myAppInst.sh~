@@ -1,0 +1,36 @@
+cd $HOME/.fonts/
+wget -q https://github.com/miiton/Cica/releases/download/v5.0.2/Cica_v5.0.2_with_emoji.zip
+unzip -q ../Cica_v5.0.2_with_emoji.zip -d Cica
+
+# Install
+sudo apt-get update
+## Gcc, make
+sudo apt install build-essential git
+## Emacs
+sudo apt install zile
+sudo apt install emacs-gtk emacs-mozc-bin
+sudo apt install pandoc
+## Utils
+apt-get install google-drive-ocamlfuse
+## Node.js
+### Nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
+nvm install stable --latest-npm
+nvm alias default stable
+# Docer
+## See https://docs.docker.com/engine/install/debian/
+sudo apt-get -y install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+sudo add-apt-repository \
+   "deb [arch=arm64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+sudo apt-get update
+sudo apt-cache policy docker-ce
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+sudo usermod -aG docker ${USER}

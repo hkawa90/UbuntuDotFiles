@@ -24,17 +24,12 @@
 ;;            ))
 
 ;; maximized screen
-;;(set-frame-parameter (selected-frame) 'fullscreen 'maximized)
-;;(add-to-list 'default-frame-alist '(fullscreen . maximized))
-;;(toggle-frame-maximized)
 ;; See D.2 Table of X Resources for Emacs
 ;; - Equal to running emacs with '-mm' option.
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
-;;(add-to-list 'initial-frame-alist '(fullscreen . maximized))
-;;(message "default-frame-alist %s" default-frame-alist)
-;;(message "initial-frame-alist %s" initial-frame-alist)
-;; full screen
-;;(add-to-list 'default-frame-alist '(fullscreen . fullboth))
+;;値はfullboth、maximized、fullwidth、fullheightのうちどれか1つを指定でき、これらはコマンドラインオプションの‘-fs’、‘-mm’、‘-fw’、‘-fh’に相当します
+
+
 ;; doom-themes
 (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
       doom-themes-enable-italic t) ; if nil, italics is universally disabled
@@ -42,6 +37,7 @@
 (doom-themes-visual-bell-config)
 ;;  (doom-themes-treemacs-config)
 (doom-themes-org-config)
+
 ;; font
 (defvar my-font-scale (/ (x-display-pixel-width) 100)
   "font scaling parameter")
@@ -70,6 +66,18 @@
                )
               default-frame-alist))
 (set-face-attribute 'fixed-pitch nil :family "Cica")
+
+
+;; M-x variable-pitch-mode
+(add-to-list 'face-font-rescale-alist '("Noto Sans CJK JP" . my-font-scale))
+(create-fontset-from-ascii-font
+ "Noto Sans CJK JP:weight=normal:slant=normal" nil "variable")
+(set-fontset-font
+ "fontset-variable" 'japanese-jisx0208 (font-spec :family "Noto Sans CJK JP"))
+(set-face-attribute 'variable-pitch nil :fontset "fontset-variable")
+
+
+
 ;; 各ウィンドウの左右の端に、狭いフリンジを
 (set-fringe-mode 10)
 ;; カーソル形状

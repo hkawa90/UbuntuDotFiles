@@ -46,7 +46,7 @@
   ;;;(when (daemonp)
   ;;;(exec-path-from-shell-initialize);)
   (setq exec-path-from-shell-check-startup-files nil)
-  (setq exec-path-from-shell-arguments '("-l")) ; non-interactive shell is faster.
+;  (setq exec-path-from-shell-arguments '("-l")) ; non-interactive shell is faster.
   (exec-path-from-shell-copy-envs '("PATH" "MANPATH" "LANG" "LC_ALL" "LC_MESSAGES"))
   )
 
@@ -191,7 +191,10 @@
   :emacs>= 25.3
   :ensure t
   :after page-break-lines
-  :config (dashboard-setup-startup-hook))
+  :custom ((dashboard-setup-startup-hook)
+           (dashboard-set-heading-icons . t)
+           (dashboard-set-file-icons . t))
+  )
 
 (setq dashboard-items '((recents  . 5)
                         (bookmarks . 5)
@@ -234,20 +237,60 @@
   )
 
 (leaf google-translate
-  :doc "Emacs interface to Google Translate."
-  :tag "convenience"
-  :added "2020-12-27"
-  :url "https://github.com/atykhonov/google-translate"
-  :ensure t)
+  :ensure t
+  :bind (("C-t" . chromium-translate)
+         ("C-c t" . google-translate-auto))
+  :config
+  (defun google-translate-auto ()
+    "Automatically recognize and translate Japanese and English."
+    (interactive)
+    (if (use-region-p)
+        (let ((string (buffer-substring-no-properties (region-beginning) (region-end))))
+          (deactivate-mark)
+          (if (string-match (format "\\`[%s]+\\'" "[:ascii:]")
+                            string)
+              (google-translate-translate
+               "en" "ja"
+               string)
+            (google-translate-translate
+             "ja" "en"
+             string)))
+      (let ((string (read-string "Google Translate: ")))
+        (if (string-match
+             (format "\\`[%s]+\\'" "[:ascii:]")
+             string)
+            (google-translate-translate
+             "en" "ja"
+             string)
+          (google-translate-translate
+           "ja" "en"
+           string)))))
 
-(leaf google-translate-default-ui
-  :doc "default UI for Google Translate"
-  :after google-translate
-  :added "2020-12-27"
-  :leaf-autoload nil
-  :require t)
+  ;; Fix error of "Failed to search TKK"
+  (defun google-translate--get-b-d1 ()
+    "Search TKK."
+    (list 427110 1469889687))
 
-
+  (defun chromium-translate ()
+    "Open google translate with chromium."
+    (interactive)
+    (if (use-region-p)
+        (let ((string (buffer-substring-no-properties (region-beginning) (region-end))))
+          (deactivate-mark)
+          (if (string-match (format "\\`[%s]+\\'" "[:ascii:]")
+                            string)
+              (browse-url (concat "https://translate.google.com/?source=gtx#en/ja/"
+                                  (url-hexify-string string)))
+            (browse-url (concat "https://translate.google.com/?source=gtx#ja/en/"
+                                (url-hexify-string string)))))
+      (let ((string (read-string "Google Translate: ")))
+        (if (string-match
+             (format "\\`[%s]+\\'" "[:ascii:]")
+             string)
+            (browse-url
+             (concat "https://translate.google.com/?source=gtx#en/ja/" (url-hexify-string string)))
+          (browse-url
+           (concat "https://translate.google.com/?source=gtx#ja/en/" (url-hexify-string string))))))))
 
 
 (leaf open-junk-file
