@@ -12,6 +12,7 @@
   :leaf-autoload nil
   :bind (("C-c a" . org-agenda) ("C-c c" . org-capture))
   :init
+  :hook (org-mode-hook . my-buffer-face-mode-variable)
   :config
   (setq org-log-done 'time)
   (setq org-use-speed-commands t)

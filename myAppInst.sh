@@ -4,8 +4,16 @@ sudo apt-get update
 ## Fonts
 mkdir $HOME/.fonts/
 cd $HOME/.fonts/
+mkdir Cica
+cd Cica
 wget -q https://github.com/miiton/Cica/releases/download/v5.0.2/Cica_v5.0.2_with_emoji.zip
 unzip -q ../Cica_v5.0.2_with_emoji.zip -d Cica
+cd ../
+mkdir Fira
+cd Fira
+wget -q https://github.com/tonsky/FiraCode/releases/download/5.2/Fira_Code_v5.2.zip
+unzip -q Fira_Code_v5.2.zip
+fc-cache -f
 cd $HOME
 
 ## Gcc, make

@@ -17,7 +17,6 @@
           (lambda ()
             (make-local-variable 'coding-system-for-read)
             (setq coding-system-for-read 'utf-8)))
-
 ;;(add-hook 'shell-mode-hook
 ;;          (lambda()
 ;;            (set-buffer-process-coding-system 'utf-8 'utf-8)
@@ -36,46 +35,7 @@
 (load-theme  'doom-dracula t)
 (doom-themes-visual-bell-config)
 ;;  (doom-themes-treemacs-config)
-(doom-themes-org-config)
-
-;; font
-(defvar my-font-scale (/ (x-display-pixel-width) 100)
-  "font scaling parameter")
-(create-fontset-from-ascii-font
- "Cica:style=regular:spacing=0" nil "Cica")
-
-(dolist (charset
-         '(unicode
-           japanese-jisx0208
-           japanese-jisx0208-1978
-           japanese-jisx0212
-           japanese-jisx0213-1
-           japanese-jisx0213-2
-           japanese-jisx0213-a
-           japanese-jisx0213.2004-1
-           katakana-jisx0201))
-  (set-fontset-font "fontset-Cica"
-                    charset
-                    (font-spec :family "Cica" :size my-font-scale)
-                    nil 'prepend))
-
-(setq default-frame-alist
-      (append (list
-               '(font . "fontset-Cica")
-               '(alpha . 100) ;; transparent background
-               )
-              default-frame-alist))
-(set-face-attribute 'fixed-pitch nil :family "Cica")
-
-
-;; M-x variable-pitch-mode
-(add-to-list 'face-font-rescale-alist '("Noto Sans CJK JP" . my-font-scale))
-(create-fontset-from-ascii-font
- "Noto Sans CJK JP:weight=normal:slant=normal" nil "variable")
-(set-fontset-font
- "fontset-variable" 'japanese-jisx0208 (font-spec :family "Noto Sans CJK JP"))
-(set-face-attribute 'variable-pitch nil :fontset "fontset-variable")
-
+;;  (doom-themes-org-config)
 
 
 ;; 各ウィンドウの左右の端に、狭いフリンジを
@@ -95,4 +55,4 @@
   "*Face used by hl-line.")
 (setq hl-line-face 'hlline-face)
 ;; (setq hl-line-face 'underline) ; 下線
-(global-hl-line-mode)
+;;(global-hl-line-mode)

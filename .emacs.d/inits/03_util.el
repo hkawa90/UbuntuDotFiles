@@ -312,3 +312,20 @@
                (concat
                 (file-name-as-directory junk-file-dir)
                 "*.*.*"))))))))
+
+;;;
+;; Use variable width font faces in current buffer
+(defun my-buffer-face-mode-variable ()
+  "Set font to a variable width (proportional) fonts in current buffer"
+  (interactive)
+  ;;(setq buffer-face-mode-face '(:family "Symbola" :height 100 :width semi-condensed))
+  (setq buffer-face-mode-face 'variable-pitch)
+  (buffer-face-mode))
+
+;; Use monospaced font faces in current buffer
+(defun my-buffer-face-mode-fixed ()
+  "Sets a fixed width (monospace) font in current buffer"
+  (interactive)
+  ;;(setq buffer-face-mode-face '(:family "Inconsolata" :height 100))
+  (setq buffer-face-mode-face 'fixed-pitch)
+  (buffer-face-mode))
