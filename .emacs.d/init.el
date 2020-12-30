@@ -6,12 +6,12 @@
 ;; Global Settings
 ;; Code:
 
-(setq visible-bell t) ;; beep音の代わりに画面フラッシュ
+;;(setq visible-bell t) ;; beep音の代わりに画面フラッシュ
 (column-number-mode t) ;;モードラインに列番号表示
 
 
 ;; シンボリックリンクの読み込みを許可
-(setq vc-follow-symlinks t)
+;;(setq vc-follow-symlinks t)
 
 ;; Cursor Shape
 
@@ -89,6 +89,8 @@
            (menu-bar-mode . nil) ; Disable the menu bar
            (tool-bar-mode . nil) ; Disable the toolbar
            (scroll-bar-mode . nil) ; Disable visible scrollbar
+           (visible-bell . t) ;; beep音の代わりに画面フラッシュ
+           (vc-follow-symlinks . t)
            (indent-tabs-mode . nil)))
 
 (leaf startup
