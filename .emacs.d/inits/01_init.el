@@ -10,8 +10,8 @@
     (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
 
 ;; Save the file specified code with basic utf-8 if it exists
-(prefer-coding-system 'utf-8)
-
+;;(prefer-coding-system 'utf-8)
+;;(setq default-process-coding-system 'utf-8)
 ;; dired modeで文字化け抑止
 (add-hook 'dired-mode-hook
           (lambda ()
@@ -54,5 +54,5 @@
      ()))
   "*Face used by hl-line.")
 (setq hl-line-face 'hlline-face)
-;; (setq hl-line-face 'underline) ; 下線
-;;(global-hl-line-mode)
+;;(setq hl-line-face 'underline) ; 下線
+(global-hl-line-mode)
