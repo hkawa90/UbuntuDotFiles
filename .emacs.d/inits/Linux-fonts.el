@@ -7,14 +7,12 @@
 
 ;; Fonts
 ;;; fixed pitch font
-(let* ((size 15)
-       (asciifont "Cica")
+(let* ((asciifont "Fira Code")
        (jpfont "Cica")
-       (h (* size 10))
-       (fontspec (font-spec :family asciifont))
-       (jp-fontspec (font-spec :family jpfont)))
-  (create-fontset-from-ascii-font "Fira Code-16" nil "FixedCica")
-  ;;(set-face-attribute 'default nil :family asciifont :height h)
+       (h (/ (x-display-pixel-width) 15.0))
+       (fontspec (font-spec :family asciifont :height h))
+       (jp-fontspec (font-spec :family jpfont :height h)))
+  (create-fontset-from-ascii-font asciifont nil "FixedCica")
   (set-fontset-font "fontset-FixedCica" 'japanese-jisx0208 jp-fontspec nil 'append)
   (set-fontset-font "fontset-FixedCica" 'japanese-jisx0213.2004-1 jp-fontspec nil 'append)
   (set-fontset-font "fontset-FixedCica" 'japanese-jisx0213-2 jp-fontspec nil 'append)
@@ -22,17 +20,16 @@
   (set-fontset-font "fontset-FixedCica" '(#x0080 . #x024F) fontspec nil 'append)
   (set-fontset-font "fontset-FixedCica" '(#x0370 . #x03FF) fontspec nil 'append))
 (add-to-list 'default-frame-alist '(font . "fontset-FixedCica"))
-(set-face-attribute 'fixed-pitch nil :fontset "fontset-FixedCica")
+(set-face-font 'fixed-pitch "fontset-FixedCica")
+(set-face-attribute 'default nil :fontset "fontset-FixedCica")
 
 ;;; variable pitch font
-(let* ((size 15)
-       (asciifont "Noto Serif CJK JP")
+(let* ((asciifont "Century Schoolbook L")
        (jpfont "Noto Serif CJK JP")
-       (h (* size 10))
-       (fontspec (font-spec :family asciifont))
-       (jp-fontspec (font-spec :family jpfont)))
-  (create-fontset-from-ascii-font "Noto Serif CJK JP-16" nil "VariableNoto")
-  ;;(set-face-attribute 'default nil :family asciifont :height h)
+       (h (/ (x-display-pixel-width) 15.0))
+       (fontspec (font-spec :family asciifont :height h))
+       (jp-fontspec (font-spec :family jpfont :height h)))
+  (create-fontset-from-ascii-font asciifont nil "VariableNoto")
   (set-fontset-font "fontset-VariableNoto" 'japanese-jisx0208 jp-fontspec nil 'append)
   (set-fontset-font "fontset-VariableNoto" 'japanese-jisx0213.2004-1 jp-fontspec nil 'append)
   (set-fontset-font "fontset-VariableNoto" 'japanese-jisx0213-2 jp-fontspec nil 'append)
@@ -40,10 +37,11 @@
   (set-fontset-font "fontset-VariableNoto" '(#x0080 . #x024F) fontspec nil 'append)
   (set-fontset-font "fontset-VariableNoto" '(#x0370 . #x03FF) fontspec nil 'append))
 
-(set-face-attribute 'variable-pitch nil :fontset "fontset-VariableNoto")
+  (set-face-font 'variable-pitch "fontset-VariableNoto")
 
-
-(setq face-font-rescale-alist '((".*Cica.*" . 1.0)
-                                (".*Noto Serif CJK JP.*" . 1.0)
-                                (".*Fira Code.*" . 0.9)
+(setq face-font-rescale-alist '((".*Cica.*" . 1.08)
+                                (".*Noto Serif CJK JP.*" . 1.08)
+                                (".*Fira Code.*" . 1.0)
+                                (".*Century Schoolbook L.*" . 1.0)
                                 ("-cdac$" . 1.3)))
+
