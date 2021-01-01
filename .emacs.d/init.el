@@ -6,6 +6,9 @@
 ;; Global Settings
 ;; Code:
 
+(let ((default-directory (locate-user-emacs-file "./lisp")))
+  (add-to-list 'load-path default-directory))
+
 ;;(setq visible-bell t) ;; beep音の代わりに画面フラッシュ
 (column-number-mode t) ;;モードラインに列番号表示
 
@@ -93,10 +96,17 @@
            (vc-follow-symlinks . t)
            (indent-tabs-mode . nil)))
 
+;;https://qiita.com/conao3/items/347d7e472afd0c58fbd7
+;;問題はcustomがinit.elに次のようなダンプを出力する点です。このダンプにより、leafの :custom で管理している場合、2箇所を修正する必要が生じます。
+(leaf cus-edit
+  :doc "tools for customizing Emacs and Lisp packages"
+  :tag "builtin" "faces" "help"
+  :custom `((custom-file . ,(locate-user-emacs-file "custom.el"))))
+
 (leaf startup
   :doc "process Emacs shell arguments"
   :tag "builtin" "internal"
-  :custom ((inhibit-splash-screen . t)
+  :custom ((inhibit-splash-screen . nil)
            (inhibit-startup-message . t)
            ))
 
@@ -116,56 +126,3 @@
   (init-loader-load (expand-file-name "inits" user-emacs-directory))
   )
 
-
-
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(auto-revert-interval 0.1)
- '(company-idle-delay 0)
- '(company-minimum-prefix-length 1)
- '(company-transformers (quote (company-sort-by-occurrence)))
- '(counsel-find-file-ignore-regexp "\\(?:\\.\\(?:\\.?/\\)\\)")
- '(counsel-yank-pop-separator "
-----------
-")
- '(custom-set-variables nil t)
- '(doom-themes-enable-bold nil)
- '(doom-themes-enable-italic nil)
- '(eww-history-limit 100 t)
- '(eww-search-prefix "https://www.google.co.jp/search?&q=" t)
- '(flycheck-emacs-lisp-initialize-packages t t)
- '(indent-tabs-mode nil)
- '(inhibit-splash-screen t)
- '(inhibit-startup-message t)
- '(inhibit-startup-screen t)
- '(ivy-initial-inputs-alist nil)
- '(ivy-prescient-retain-classic-highlighting t)
- '(ivy-use-selectable-prompt t)
- '(ivy-use-virtual-buffers t)
- '(menu-bar-mode nil)
- '(org-agenda-files (quote ("~/Documents/org")))
- '(package-archives
-   (quote
-    (("org" . "https://orgmode.org/elpa/")
-     ("melpa" . "https://melpa.org/packages/")
-     ("gnu" . "https://elpa.gnu.org/packages/"))))
- '(package-selected-packages
-   (quote
-    (dashboard transient-dwim selected open-junk-file neotree mozc-cand-posframe markdown-toc magit leaf-tree leaf-convert ivy-prescient hydra howm google-this git-timemachine flycheck-package flycheck-elsa el-get doom-themes dockerfile-mode diff-hl counsel company-c-headers blackout bind-key aggressive-indent)))
- '(prescient-aggressive-file-save t)
- '(scroll-bar-mode nil)
- '(tool-bar-mode nil)
- '(truncate-lines t)
- '(user-full-name "Hideo Kawamura")
- '(user-login-name "kawa90" t)
- '(user-mail-address "hideo.90.kawamura@gmail.com"))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
