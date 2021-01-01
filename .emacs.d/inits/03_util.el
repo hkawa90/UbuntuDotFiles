@@ -1,3 +1,4 @@
+
 ;;; 03_util.el --- utility configurations  -*- lexical-binding: t; -*-
 ;;; Commentary:
 
@@ -46,8 +47,9 @@
   ;;;(when (daemonp)
   ;;;(exec-path-from-shell-initialize);)
   (setq exec-path-from-shell-check-startup-files nil)
-;  (setq exec-path-from-shell-arguments '("-l")) ; non-interactive shell is faster.
-  (exec-path-from-shell-copy-envs '("PATH" "MANPATH" "LANG" "LC_ALL" "LC_MESSAGES"))
+  (setq exec-path-from-shell-arguments '("-l")) ; non-interactive shell is faster.
+  ;;(exec-path-from-shell-copy-envs '("PATH" "MANPATH" "LANG" "LC_ALL" "LC_MESSAGES"))
+  (exec-path-from-shell-copy-envs '("PATH" "MANPATH"))
   )
 
 ;; ------------------------------------------------------------------------
@@ -70,115 +72,10 @@
   :hook (after-init-hook . which-key-mode)
   :config
   (which-key-setup-minibuffer)
-  (setq which-key-idle-secondary-delay 0)
+  (setq which-key-idle-secondary-delay 10)
   )
 
-;;;
-;;; Company
-;;;
-(leaf company
-  :doc "Modular text completion framework"
-  :req "emacs-24.3"
-  :tag "matching" "convenience" "abbrev" "emacs>=24.3"
-  :url "http://company-mode.github.io/"
-  :emacs>= 24.3
-  :ensure t
-  :blackout t
-  :leaf-defer nil
-  :bind ((company-active-map
-          ("M-n" . nil)
-          ("M-p" . nil)
-          ("C-s" . company-filter-candidates)
-          ("C-n" . company-select-next)
-          ("C-p" . company-select-previous)
-          ("<tab>" . company-complete-selection))
-         (company-search-map
-          ("C-n" . company-select-next)
-          ("C-p" . company-select-previous)))
-  :custom ((company-idle-delay . 0)
-           (company-minimum-prefix-length . 1)
-           (company-transformers . '(company-sort-by-occurrence)))
-  :global-minor-mode global-company-mode)
 
-(leaf company-c-headers
-  :doc "Company mode backend for C/C++ header files"
-  :req "emacs-24.1" "company-0.8"
-  :tag "company" "development" "emacs>=24.1"
-  :added "2020-03-25"
-  :emacs>= 24.1
-  :ensure t
-  :after company
-  :defvar company-backends
-  :config
-  (add-to-list 'company-backends 'company-c-headers))
-
-;;;
-;;; Selected
-;;;
-(leaf selected
-  :ensure t
-  :global-minor-mode selected-global-mode
-  :bind ((:selected-keymap
-          (";" . comment-dwim)
-          ("d" . clipboard-kill-region)
-          ("f" . describe-function)
-          ("v" . describe-variable)
-          ("c" . clipboard-kill-ring-save)
-          ("i" . iedit-mode)
-          ("s" . swiper-thing-at-point)
-          ("k" . my:koujien)
-          ("e" . my:eijiro)
-          ("w" . my:weblio)
-          ("t" . google-translate-auto)
-          ("g" . google-this-url)
-          ("G" . my:google))))
-
-(leaf user-function-selected
-  :init
-  ;; Control mozc when seleceted
-  (defun my:activate-selected ()
-    (selected-global-mode 1)
-    (selected--on)
-    (remove-hook 'activate-mark-hook #'my:activate-selected))
-  (add-hook 'activate-mark-hook #'my:activate-selected)
-  (defun my:ime-on ()
-    (interactive)
-    (when (null current-input-method) (toggle-input-method)))
-  (defun my:ime-off ()
-    (interactive)
-    (inactivate-input-method))
-
-  (defvar my:ime-flag nil)
-  (add-hook
-   'activate-mark-hook
-   #'(lambda ()
-       (setq my:ime-flag current-input-method) (my:ime-off)))
-  (add-hook
-   'deactivate-mark-hook
-   #'(lambda ()
-       (unless (null my:ime-flag) (my:ime-on))))
-
-  (defun my:koujien (str)
-    (interactive (list (my:get-region nil)))
-    (browse-url (format "https://sakura-paris.org/dict/広辞苑/prefix/%s"
-			(upcase (url-hexify-string str)))))
-
-  (defun my:weblio (str)
-    (interactive (list (my:get-region nil)))
-    (browse-url (format "https://www.weblio.jp/content/%s"
-			(upcase (url-hexify-string str)))))
-
-  (defun my:eijiro (str)
-    (interactive (list (my:get-region nil)))
-    (browse-url (format "https://eow.alc.co.jp/%s/UTF-8/"
-			(upcase (url-hexify-string str)))))
-  (defun my:google (str)
-    (interactive (list (my:get-region nil)))
-    (browse-url (format "https://www.google.com/search?hl=ja&q=%s"
-			(upcase (url-hexify-string str)))))
-  (defun my:get-region (r)
-    "Get search word from region."
-    (buffer-substring-no-properties (region-beginning) (region-end))))
 
 ;; Dashboard
 (dashboard-setup-startup-hook)
@@ -191,15 +88,16 @@
   :emacs>= 25.3
   :ensure t
   :after page-break-lines
-  :custom ((dashboard-setup-startup-hook)
-           (dashboard-set-heading-icons . t)
-           (dashboard-set-file-icons . t))
-  )
-
-(setq dashboard-items '((recents  . 5)
-                        (bookmarks . 5)
-                        (projects . 8)
-                        (agenda . 5)))
+  :custom ((dashboard-set-heading-icons . t)
+           (dashboard-center-content . t)
+           ;; LANG=Cかつset-language-environment設定でやっと正常表示、
+           ;; 面倒なので水平線表示しないようにする
+           (dashboard-page-separator . "\n\n") 
+           (dashboard-set-file-icons . t)
+           (dashboard-items . '((recents  . 5)
+                                (bookmarks . 5)
+                                (projects . 8)
+                                (agenda . 5)))))
 
 
 (leaf aggressive-indent
@@ -233,64 +131,38 @@
   (defun google-this-url (str) "URL for google searches."
          (concat google-this-base-url google-this-location-suffix
                  "/search?q=%s&hl=ja&num=10&as_qdr=y5&lr=lang_ja"
-                 (upcase (url-hexify-string str))))
-  )
+                 (upcase (url-hexify-string str)))))
 
-(leaf google-translate
-  :ensure t
-  :bind (("C-t" . chromium-translate)
-         ("C-c t" . google-translate-auto))
-  :config
-  (defun google-translate-auto ()
-    "Automatically recognize and translate Japanese and English."
-    (interactive)
-    (if (use-region-p)
-        (let ((string (buffer-substring-no-properties (region-beginning) (region-end))))
-          (deactivate-mark)
-          (if (string-match (format "\\`[%s]+\\'" "[:ascii:]")
-                            string)
-              (google-translate-translate
-               "en" "ja"
-               string)
-            (google-translate-translate
-             "ja" "en"
-             string)))
-      (let ((string (read-string "Google Translate: ")))
-        (if (string-match
-             (format "\\`[%s]+\\'" "[:ascii:]")
-             string)
+;; leafでうまくロードできず,やむなくload-pathに配置している
+(require 'google-translate)
+(require 'google-translate-default-ui)
+(global-set-key "\C-ct" 'google-translate-at-point)
+(global-set-key "\C-cT" 'google-translate-query-translate)
+
+(defun google-translate-auto ()
+  "Automatically recognize and translate Japanese and English."
+  (interactive)
+  (if (use-region-p)
+      (let ((string (buffer-substring-no-properties (region-beginning) (region-end))))
+        (deactivate-mark)
+        (if (string-match (format "\\`[%s]+\\'" "[:ascii:]")
+                          string)
             (google-translate-translate
              "en" "ja"
              string)
           (google-translate-translate
            "ja" "en"
-           string)))))
-
-  ;; Fix error of "Failed to search TKK"
-  (defun google-translate--get-b-d1 ()
-    "Search TKK."
-    (list 427110 1469889687))
-
-  (defun chromium-translate ()
-    "Open google translate with chromium."
-    (interactive)
-    (if (use-region-p)
-        (let ((string (buffer-substring-no-properties (region-beginning) (region-end))))
-          (deactivate-mark)
-          (if (string-match (format "\\`[%s]+\\'" "[:ascii:]")
-                            string)
-              (browse-url (concat "https://translate.google.com/?source=gtx#en/ja/"
-                                  (url-hexify-string string)))
-            (browse-url (concat "https://translate.google.com/?source=gtx#ja/en/"
-                                (url-hexify-string string)))))
-      (let ((string (read-string "Google Translate: ")))
-        (if (string-match
-             (format "\\`[%s]+\\'" "[:ascii:]")
-             string)
-            (browse-url
-             (concat "https://translate.google.com/?source=gtx#en/ja/" (url-hexify-string string)))
-          (browse-url
-           (concat "https://translate.google.com/?source=gtx#ja/en/" (url-hexify-string string))))))))
+           string)))
+    (let ((string (read-string "Google Translate: ")))
+      (if (string-match
+           (format "\\`[%s]+\\'" "[:ascii:]")
+           string)
+          (google-translate-translate
+           "en" "ja"
+           string)
+        (google-translate-translate
+         "ja" "en"
+         string)))))
 
 
 (leaf open-junk-file
@@ -313,12 +185,44 @@
                 (file-name-as-directory junk-file-dir)
                 "*.*.*"))))))))
 
-;;;
+(leaf search-web
+  :doc "Post web search queries using `browse-url'."
+  :added "2020-12-31"
+  :require t ; これがないと、うまくロードできなかった
+  :ensure t
+  :bind (("s-s" . hydra-search-web/body))
+  :hydra
+  (hydra-search-web (:color red :hint nil)
+                    "
+Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _w_eblio  _p_〒  _k_古語  _r_類語 _._close"
+                    ("a" (search-web-dwim "amazon jp"))
+                    ("e" (search-web-dwim "eijiro"))
+                    ("g" (search-web-dwim "google"))
+                    ("m" (search-web-dwim "google maps"))
+                    ("h" (search-web-dwim "github"))
+                    ("q" (search-web-dwim "qitta"))
+                    ("w" (search-web-dwim "weblio"))
+                    ("p" (search-web-dwim "post"))
+                    ("k" (search-web-dwim "kobun"))
+                    ("r" (search-web-dwim "ruigo"))
+                    ("t" google-translate-auto)
+                    ("q" nil)
+                    ("." nil :color blue))
+  :config
+  (add-to-list 'search-web-engines '("weblio" "http://weblio.jp/content/%s" nil))
+  (add-to-list 'search-web-engines '("kobun" "http://kobun.weblio.jp/content/%s" nil))
+  (add-to-list 'search-web-engines '("ruigo" "http://thesaurus.weblio.jp/content/%s" nil))
+  (add-to-list 'search-web-engines '("github" "https://github.com/search?utf8=✓&q=%s&ref=simplesearch" nil))
+  (add-to-list 'search-web-engines '("qitta" "https://qiita.com/search?q=%s" nil))
+  (add-to-list 'search-web-engines '("post" "https://postcode.goo.ne.jp/search/q/%s/" nil))
+  (add-to-list 'search-web-engines '("earth" "https://earth.google.com/web/search/%s/" nil)))
+
+;;;---------------------
+
 ;; Use variable width font faces in current buffer
 (defun my-buffer-face-mode-variable ()
   "Set font to a variable width (proportional) fonts in current buffer"
   (interactive)
-  ;;(setq buffer-face-mode-face '(:family "Symbola" :height 100 :width semi-condensed))
   (setq buffer-face-mode-face 'variable-pitch)
   (buffer-face-mode))
 
@@ -326,6 +230,32 @@
 (defun my-buffer-face-mode-fixed ()
   "Sets a fixed width (monospace) font in current buffer"
   (interactive)
-  ;;(setq buffer-face-mode-face '(:family "Inconsolata" :height 100))
   (setq buffer-face-mode-face 'fixed-pitch)
   (buffer-face-mode))
+
+;;
+(defun my:current-font-object ()
+  "print font object"
+  (interactive)
+  (message "%s" (font-xlfd-name (font-at (point)))))
+
+(defun my:current-face()
+  "print face"
+  (interactive)
+  (message "%s" (get-char-property (point) 'face)))
+
+(defun my:current-font-list()
+  "print font list"
+  (interactive)
+  (message "%s" (dolist (x (x-list-fonts "*")) (print x))))
+
+(global-set-key (kbd "s-u") 'hydra-my-util/body)
+
+(defhydra hydra-my-util ()
+  "utility"
+  ("g" text-scale-increase "zoom in")
+  ("l" text-scale-decrease "zoom out")
+  ("t" variable-pitch-mode "toggle pitch")
+  ("a" my:current-font-object "font object")
+  ("b" my:current-face "face")
+  ("c" my:current-font-list "font list"))
