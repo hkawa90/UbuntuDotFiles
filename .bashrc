@@ -131,6 +131,7 @@ fi
 
 #alias ema="/bin/snap run emacs"
 alias miniemacs="emacs -q -l ~/.emacs.d/minimal-init.el"
+alias emac_compile="emacs -batch -f batch-byte-compile "
 alias ema="emacs -mm"
 alias emac="emacsclient -c"
 alias emanc="emacsclient -nc"
