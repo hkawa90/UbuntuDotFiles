@@ -20,6 +20,8 @@
   (set-fontset-font "fontset-FixedCica" '(#x0080 . #x024F) fontspec nil 'append)
   (set-fontset-font "fontset-FixedCica" '(#x0370 . #x03FF) fontspec nil 'append))
 (add-to-list 'default-frame-alist '(font . "fontset-FixedCica"))
+
+(set-face-attribute 'fixed-pitch nil :family nil :fontset "fontset-FixedCica")
 (set-face-font 'fixed-pitch "fontset-FixedCica")
 (set-face-attribute 'default nil :fontset "fontset-FixedCica")
 
@@ -37,7 +39,8 @@
   (set-fontset-font "fontset-VariableNoto" '(#x0080 . #x024F) fontspec nil 'append)
   (set-fontset-font "fontset-VariableNoto" '(#x0370 . #x03FF) fontspec nil 'append))
 
-  (set-face-font 'variable-pitch "fontset-VariableNoto")
+(set-face-attribute 'variable-pitch nil :family nil :fontset "fontset-VariableNoto")
+(set-face-font 'variable-pitch "fontset-VariableNoto")
 
 (setq face-font-rescale-alist '((".*Cica.*" . 1.08)
                                 (".*Noto Serif CJK JP.*" . 1.08)
