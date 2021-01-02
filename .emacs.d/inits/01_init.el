@@ -29,30 +29,3 @@
 ;;値はfullboth、maximized、fullwidth、fullheightのうちどれか1つを指定でき、これらはコマンドラインオプションの‘-fs’、‘-mm’、‘-fw’、‘-fh’に相当します
 
 
-;; doom-themes
-(setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-      doom-themes-enable-italic t) ; if nil, italics is universally disabled
-(load-theme  'doom-dracula t)
-(doom-themes-visual-bell-config)
-;;  (doom-themes-treemacs-config)
-;;  (doom-themes-org-config)
-
-
-;; 各ウィンドウの左右の端に、狭いフリンジを
-(set-fringe-mode 10)
-;; カーソル形状
-(setq-default cursor-type 'bar)
-;; カーソル行ハイライト
-(defface hlline-face
-  '((((class color)
-      (background dark))
-     (:background "gray20"))
-    (((class color)
-      (background light))
-     (:background "ForestGreen"))
-    (t
-     ()))
-  "*Face used by hl-line.")
-(setq hl-line-face 'hlline-face)
-;;(setq hl-line-face 'underline) ; 下線
-(global-hl-line-mode)
