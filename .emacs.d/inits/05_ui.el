@@ -5,37 +5,20 @@
 
 ;;; Code:
 
-;(defun my:setup-ui (frame)
-
-;  )
-
-;;(if window-system ;; window-system is nil on Emacs27 daemon mode
-;;(if (or (daemonp) window-system)
-;;;    (progn
-;;;      (message "setup ui")
-;;;      (add-hook 'after-make-frame-functions #'my:setup-ui)))
-
-;(if (or (daemonp) window-system)
-;    (my:setup-ui nil))
-
-;;;    (if (or (daemonp) window-system)
-;;;        (add-hook 'after-make-frame-functions 'my:setup-ui))
-
-;;;
 ;;; テーマの設定
-;;; Doom Tomorrow Night
+;;; doom-one-light
 ;;;
 (leaf doom-themes
   :ensure t treemacs
   :custom
-  ;;(doom-themes-enable-italic . t)
-  ;;(doom-themes-enable-bold . t)
+  (doom-themes-enable-italic . t)
+  (doom-themes-enable-bold . t)
   :config
-  ;;(load-theme  'doom-dracula t)
-  ;;(load-theme 'doom-tomorrow-night t)
+  (load-theme 'doom-one-light t)
+  (doom-themes-visual-bell-config)
   ;;(doom-themes-treemacs-config)
   ;;(doom-themes-neotree-config)
-  ;;(doom-themes-org-config)
+  (doom-themes-org-config)
   )
 
 
@@ -51,3 +34,11 @@
   :emacs>= 24.3
   :ensure t
   :after memoize)
+
+;; 各ウィンドウの左右の端に、狭いフリンジを
+(set-fringe-mode 10)
+;; カーソル形状
+(setq-default cursor-type 'bar)
+;; カーソル行ハイライト
+(setq hl-line-face 'underline) ; 下線
+(global-hl-line-mode)
