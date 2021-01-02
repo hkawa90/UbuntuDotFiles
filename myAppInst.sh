@@ -7,7 +7,12 @@ cd $HOME/.fonts/
 mkdir Cica
 cd Cica
 wget -q https://github.com/miiton/Cica/releases/download/v5.0.2/Cica_v5.0.2_with_emoji.zip
-unzip -q ../Cica_v5.0.2_with_emoji.zip -d Cica
+unzip -q Cica_v5.0.2_with_emoji.zip -d Cica
+cd ..
+mkdir SourceCode
+cd SourceCode
+wget https://github.com/adobe-fonts/source-code-pro/releases/download/2.032R-ro%2F1.052R-it%2F1.012R-VAR/TTF-source-code-pro-2.032R-ro-1.052R-it.zip
+unzip -q TTF-source-code-pro-2.032R-ro-1.052R-it.zip
 cd ../
 mkdir Fira
 cd Fira
