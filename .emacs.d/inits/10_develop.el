@@ -5,6 +5,18 @@
 
 ;;; Code:
 
+(leaf yasnippet
+  :doc "Yet another snippet extension for Emacs"
+  :req "cl-lib-0.5"
+  :tag "emulation" "convenience"
+  :added "2021-01-01"
+  :url "http://github.com/joaotavora/yasnippet"
+  :ensure t)
+
+;; language server protocol
+;; M-x lsp
+;; https://qiita.com/Ladicle/items/e666e3fb9fae9d807969
+;; https://blog.takuchalle.dev/post/2018/12/11/emacs_lsp_mode/
 (leaf lsp-mode
   :doc "LSP mode"
   :req "emacs-26.1" "dash-2.14.1" "dash-functional-2.14.1" "f-0.20.0" "ht-2.0" "spinner-1.7.3" "markdown-mode-2.3" "lv-0"
@@ -33,7 +45,8 @@
   :ensure t
   :package t
   :after lsp-mode markdown-mode
-  :require t)
+  :require t
+  :hook   (lsp-mode . lsp-ui-mode))
 
 
 
@@ -47,7 +60,15 @@
   :ensure t
   :after lsp-mode ivy)
 
-
+(leaf company-lsp
+  :doc "Company completion backend for lsp-mode."
+  :req "emacs-25.1" "lsp-mode-6.0" "company-0.9.0" "s-1.2.0" "dash-2.11.0"
+  :tag "emacs>=25.1"
+  :added "2021-01-01"
+  :url "https://github.com/tigersoldier/company-lsp"
+  :emacs>= 25.1
+  :ensure t
+  :after lsp-mode company)
 
 (leaf lsp-treemacs
   :doc "LSP treemacs"
@@ -94,6 +115,7 @@
   :emacs>= 25.2
   :ensure t
   :after projectile lsp-treemacs)
+
 
 ;;;
 ;;; Indenting for C
