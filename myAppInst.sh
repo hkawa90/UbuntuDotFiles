@@ -45,6 +45,8 @@ sudo apt -y install indicator-stickynotes
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
 nvm install stable --latest-npm
 nvm alias default stable
+### pnpm
+npm install -g pnpm
 ## typescript-language-server
 npm install -g typescript-language-server
 # Docer
@@ -64,3 +66,8 @@ sudo apt-get update
 sudo apt-cache policy docker-ce
 sudo apt-get install docker-ce docker-ce-cli containerd.io
 sudo usermod -aG docker ${USER}
+# build system
+## Scons
+sudo apt-get -y install scons
+## ccls (language server)
+sudo apt -y install ccls
