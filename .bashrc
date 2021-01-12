@@ -128,6 +128,11 @@ if [ -f /usr/bin/google-drive-ocamlfuse ]; then
 		google-drive-ocamlfuse $HOME/GoogleDrive
 	fi
 fi
+# ccache
+# CC='ccache gcc' 
+# CXX='ccache g++'
+export USE_CCACHE=1
+export CCACHE_DIR=~/.ccache
 
 alias ema="/bin/snap run emacs"
 alias miniemacs="/bin/snap run emacs -q -l ~/.emacs.d/minimal-init.el"
