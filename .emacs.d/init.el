@@ -70,7 +70,9 @@
            (vc-follow-symlinks . t)
            (indent-tabs-mode . nil)
            ;; Save the file specified code with basic utf-8 if it exists
-           (prefer-coding-system . 'utf-8)))
+           (prefer-coding-system . 'utf-8))
+  :init
+  )
 
 ;;https://qiita.com/conao3/items/347d7e472afd0c58fbd7
 ;;問題はcustomがinit.elに次のようなダンプを出力する点です。このダンプにより、leafの :custom で管理している場合、2箇所を修正する必要が生じます。
@@ -78,12 +80,6 @@
   :doc "tools for customizing Emacs and Lisp packages"
   :tag "builtin" "faces" "help"
   :custom `((custom-file . ,(locate-user-emacs-file "custom.el"))))
-
-(leaf autorevert
-  :doc "revert buffers when files on disk change"
-  :tag "builtin"
-  :custom ((auto-revert-interval . 0.1))
-  :global-minor-mode global-auto-revert-mode)
 
 (leaf ka/font-setting
   :config
@@ -132,117 +128,96 @@
                                   ("-cdac$" . 1.3)))
 
   )
-
-(leaf dired
-  ;;(setq default-process-coding-system 'utf-8)
-  ;; dired modeで文字化け抑止
-  :hook (dired-mode-hook .
-                         (lambda ()
-                           (make-local-variable 'coding-system-for-read)
-                           (setq coding-system-for-read 'utf-8))))
-
-(leaf flycheck
-  :doc "On-the-fly syntax checking"
-  :emacs>= 24.3
-  :ensure t
-  :bind (("M-n" . flycheck-next-error)
-         ("M-p" . flycheck-previous-error))
-  :custom (flycheck-emacs-lisp-initialize-packages . t)
-  (flycheck-disabled-checkers . '(javascript-jshint javascript-jscs))
-  :init (global-flycheck-mode)
+(leaf ka/util
   :config
-  (leaf flycheck-package
-    :doc "A Flycheck checker for elisp package authors"
-    :ensure t
-    :config
-    (flycheck-package-setup))
+  (leaf recentf
+    :doc "setup a menu of recently opened files"
+    :tag "builtin"
+    :added "2021-01-12"
+    :config  
+    (setq recentf-save-file "~/.emacs.d/.recentf")
+    (setq recentf-max-saved-items 1000)            ;; recentf に保存するファイルの数
+    (setq recentf-exclude '(".recentf"))           ;; .recentf自体は含まない
+    )
 
-  (leaf flycheck-elsa
-    :doc "Flycheck for Elsa."
-    :emacs>= 25
-    :ensure t
-    :config
-    (flycheck-elsa-setup))
+  (leaf autorevert
+    :doc "revert buffers when files on disk change"
+    :tag "builtin"
+    :custom ((auto-revert-interval . 0.1))
+    :global-minor-mode global-auto-revert-mode)
 
-  (leaf flycheck-rust
-    :doc "Flycheck: Rust additions and Cargo support"
-    :req "emacs-24.1" "flycheck-28" "dash-2.13.0" "seq-2.3" "let-alist-1.0.4"
-    :tag "convenience" "tools" "emacs>=24.1"
-    :added "2021-01-06"
-    :url "https://github.com/flycheck/flycheck-rust"
+  (leaf dired
+    ;; dired modeで文字化け抑止
+    :hook (dired-mode-hook .
+                           (lambda ()
+                             (make-local-variable 'coding-system-for-read)
+                             (setq coding-system-for-read 'utf-8))))
+
+  (leaf exec-path-from-shell
+    :doc "Get environment variables such as $PATH from the shell"
+    :req "emacs-24.1"
+    :tag "environment" "unix" "emacs>=24.1"
+    :added "2020-08-27"
+    :url "https://github.com/purcell/exec-path-from-shell"
     :emacs>= 24.1
     :ensure t
-    :after flycheck)
-  )
-
-
-(leaf exec-path-from-shell
-  :doc "Get environment variables such as $PATH from the shell"
-  :req "emacs-24.1"
-  :tag "environment" "unix" "emacs>=24.1"
-  :added "2020-08-27"
-  :url "https://github.com/purcell/exec-path-from-shell"
-  :emacs>= 24.1
-  :ensure t
-  :config
+    :config
   ;;;(when (daemonp)
   ;;;(exec-path-from-shell-initialize);)
-  (setq exec-path-from-shell-check-startup-files nil)
-  (setq exec-path-from-shell-arguments '("-l")) ; non-interactive shell is faster.
-  ;;(exec-path-from-shell-copy-envs '("PATH" "MANPATH" "LANG" "LC_ALL" "LC_MESSAGES"))
-  (exec-path-from-shell-copy-envs '("PATH" "MANPATH"))
-  )
+    (setq exec-path-from-shell-check-startup-files nil)
+    (setq exec-path-from-shell-arguments '("-l")) ; non-interactive shell is faster.
+    ;;(exec-path-from-shell-copy-envs '("PATH" "MANPATH" "LANG" "LC_ALL" "LC_MESSAGES"))
+    (exec-path-from-shell-copy-envs '("PATH" "MANPATH"))
+    )
 
-;; ------------------------------------------------------------------------
-;; EWW (Emacs Web Wowser, Web Browser)
-;; ------------------------------------------------------------------------
-(leaf eww
-  :bind (("C-c C-e" . eww))
-  :custom `((eww-search-prefix . "https://www.google.co.jp/search?&q=")
-            (eww-history-limit . 100)))
+  (leaf eww
+    :doc "Emacs Web Wowser"
+    :bind (("C-c C-e" . eww))
+    :custom `((eww-search-prefix . "https://www.google.co.jp/search?&q=")
+              (eww-history-limit . 100)))
 
+  (leaf which-key
+    :doc "Display available keybindings in popup"
+    :req "emacs-24.4"
+    :tag "emacs>=24.4"
+    :added "2020-12-21"
+    :url "https://github.com/justbur/emacs-which-key"
+    :emacs>= 24.4
+    :ensure t
+    :hook (after-init-hook . which-key-mode)
+    :config
+    (which-key-setup-minibuffer)
+    (setq which-key-idle-secondary-delay 10)
+    )
 
-(leaf which-key
-  :doc "Display available keybindings in popup"
-  :req "emacs-24.4"
-  :tag "emacs>=24.4"
-  :added "2020-12-21"
-  :url "https://github.com/justbur/emacs-which-key"
-  :emacs>= 24.4
-  :ensure t
-  :hook (after-init-hook . which-key-mode)
-  :config
-  (which-key-setup-minibuffer)
-  (setq which-key-idle-secondary-delay 10)
-  )
+  ;; Dashboard
+  (leaf dashboard
+    :doc "A startup screen extracted from Spacemacs"
+    :req "emacs-25.3" "page-break-lines-0.11"
+    :tag "dashboard" "tools" "screen" "startup" "emacs>=25.3"
+    :added "2020-12-17"
+    :url "https://github.com/emacs-dashboard/emacs-dashboard"
+    :emacs>= 25.3
+    :require t
+    :ensure t
+    :after page-break-lines org
+    :preface (dashboard-setup-startup-hook)
+    :hook (after-init-hook . (lambda ()
+                               (if (daemonp)
+                                   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))))
 
-;; Dashboard
-(leaf dashboard
-  :doc "A startup screen extracted from Spacemacs"
-  :req "emacs-25.3" "page-break-lines-0.11"
-  :tag "dashboard" "tools" "screen" "startup" "emacs>=25.3"
-  :added "2020-12-17"
-  :url "https://github.com/emacs-dashboard/emacs-dashboard"
-  :emacs>= 25.3
-  :require t
-  :ensure t
-  :after page-break-lines org
-  :preface (dashboard-setup-startup-hook)
-  :hook (after-init-hook . (lambda ()
-                             (if (daemonp)
-                                 (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))))
+    :custom ((dashboard-set-heading-icons . t)
+             (dashboard-center-content . t)
+             ;; LANG=Cかつset-language-environment設定でやっと正常表示、
+             ;; 面倒なので水平線表示しないようにする
+             (dashboard-page-separator . "\n\n") 
+             (dashboard-set-file-icons . t)
+             (dashboard-items . '((recents  . 5)
+                                  (bookmarks . 5)
+                                  (projects . 8)
+                                  (agenda . 8))))
 
-  :custom ((dashboard-set-heading-icons . t)
-           (dashboard-center-content . t)
-           ;; LANG=Cかつset-language-environment設定でやっと正常表示、
-           ;; 面倒なので水平線表示しないようにする
-           (dashboard-page-separator . "\n\n") 
-           (dashboard-set-file-icons . t)
-           (dashboard-items . '((recents  . 5)
-                                (bookmarks . 5)
-                                (projects . 8)
-                                (agenda . 8))))
-
+    )
   )
 
 
@@ -404,35 +379,6 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
   ("q" nil "quit")
   ("." nil :color blue))
 
-;; Test
-(global-set-key (kbd "s-b") 'hydra-bkmk/body)
-(defhydra hydra-bkmk (:color pink :hint nil)
-  "BookMark(bm/buildin)"
-  ("m" bm-toggle "toggle" :column "marked")
-  ("N" bm-lifo-next "LIFO N")
-  ("P" bm-lifo-previous "LIFO P")
-  ;;
-  ("n" bm-common-next "next" :column "jump")
-  ("p" bm-common-previous "prev")
-  ("l" bm-show-all "list o/w")
-  ;;
-  ("s" bm-toggle-buffer-persistence "stay(toggle)" :column "edit")
-  ("rr" bm-remove-all-current-buffer "remove c.buff")
-  ("rR" bm-remove-all-all-buffers "remove a.buff")
-  ;;
-  ("aa" bm-bookmark-annotate "annotate" :column "annotate")
-  ("aA" bm-bookmark-show-annotation "show anno")
-  ;;
-  ("xrl" bookmark-bmenu-list "blist" :exit t :column "Standard BkMk")
-  ("xrm" bookmark-set "set current" :exit t)
-  ("bo" bookmark-jump-other-window "jump other" :exit t)
-  ("bc" counsel-bookmark "counsel bkmk")
-  ("br" counsel-mark-ring "counsel mk ring")
-  ;;
-  ("q" nil "quit" :color blue :column "Quit")
-  ("." nil "quit" :color blue)
-  ("U" org-ctrl-c-ctrl-c "org ctl cc")
-  )
 
 (leaf ivy
   :doc "Incremental Vertical completYon"
@@ -519,7 +465,13 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
   :custom ((company-idle-delay . 0)
            (company-minimum-prefix-length . 1)
            (company-transformers . '(company-sort-by-occurrence)))
-  :global-minor-mode global-company-mode)
+  :global-minor-mode global-company-mode
+  :config
+  ;;; http://tuhdo.github.io/c-ide.html#sec-2
+  (setq company-backends (delete 'company-semantic company-backends))
+  (define-key c-mode-map  [(tab)] 'company-complete)
+  (define-key c++-mode-map  [(tab)] 'company-complete))
+
 
 (leaf company-c-headers
   :doc "Company mode backend for C/C++ header files"
@@ -529,7 +481,6 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
   :emacs>= 24.1
   :ensure t
   :after company
-  :defvar company-backends
   :config
   (add-to-list 'company-backends 'company-c-headers))
 
@@ -561,10 +512,6 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
   :ensure t
   :after memoize)
 
-;; 各ウィンドウの左右の端に、狭いフリンジを
-(set-fringe-mode 10)
-;; カーソル形状
-(setq-default cursor-type 'bar)
 ;; カーソル行ハイライト
 (setq hl-line-face 'underline) ; 下線
 (global-hl-line-mode)
@@ -670,84 +617,95 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
            (lsp-print-io . t)
            (lsp-prefer-capf . t)
            ;; ローカル環境にのみ保存
-           (lsp-session-file . "~/.emacs.lsp-session")))
+           (lsp-session-file . "~/.emacs.lsp-session"))
+  :config
+  (leaf lsp-ui
+    :doc "UI modules for lsp-mode"
+    :req "emacs-26.1" "dash-2.14" "dash-functional-1.2.0" "lsp-mode-6.0" "markdown-mode-2.3"
+    :tag "tools" "languages" "emacs>=26.1"
+    :added "2020-12-19"
+    :url "https://github.com/emacs-lsp/lsp-ui"
+    :emacs>= 26.1
+    :ensure t
+    :package t
+    :after lsp-mode markdown-mode
+    :require t
+    :hook   (lsp-mode . lsp-ui-mode)
+    :custom (;; lsp-ui-doc
+             (lsp-ui-doc-enable . t)
+             (lsp-ui-doc-header . t)
+             (lsp-ui-doc-include-signature . t)
+             (lsp-ui-doc-position . 'top)
+             (lsp-ui-doc-max-width  . 60)
+             (lsp-ui-doc-max-height . 20)
+             (lsp-ui-doc-use-childframe . t)
+             (lsp-ui-doc-use-webkit . nil)
+             
+             ;; lsp-ui-flycheck
+             (lsp-ui-flycheck-enable . t)
+             
+             ;; lsp-ui-sideline
+             (lsp-ui-sideline-enable . t)
+             (lsp-ui-sideline-ignore-duplicate . t)
+             (lsp-ui-sideline-show-symbol . t)
+             (lsp-ui-sideline-show-hover . t)
+             (lsp-ui-sideline-show-diagnostics . t)
+             (lsp-ui-sideline-show-code-actions . t)
+             
+             ;; lsp-ui-imenu
+             (lsp-ui-imenu-enable . nil)
+             (lsp-ui-imenu-kind-position . 'top)
+             
+             ;; lsp-ui-peek
+             (lsp-ui-peek-enable . t)
+             (lsp-ui-peek-always-show . t)
+             (lsp-ui-peek-peek-height . 30)
+             (lsp-ui-peek-list-width . 30)
+             (lsp-ui-peek-fontify . 'always)))
+  (leaf lsp-ivy
+    :doc "LSP ivy integration"
+    :req "emacs-25.1" "dash-2.14.1" "lsp-mode-6.2.1" "ivy-0.13.0"
+    :tag "debug" "languages" "emacs>=25.1"
+    :added "2020-12-19"
+    :url "https://github.com/emacs-lsp/lsp-ivy"
+    :emacs>= 25.1
+    :ensure t
+    :after lsp-mode ivy)
+  (leaf ccls
+    :doc "ccls client for lsp-mode"
+    :req "emacs-25.1" "lsp-mode-6.3.1" "dash-2.14.1"
+    :tag "c++" "lsp" "languages" "emacs>=25.1"
+    :added "2021-01-09"
+    :url "https://github.com/MaskRay/emacs-ccls"
+    :emacs>= 25.1
+    :ensure t
+    :require t
+    :after lsp-mode
+    :config 
+    (setq ccls-executable "/usr/bin/ccls"))
+  (leaf company-lsp
+    :doc "Company completion backend for lsp-mode."
+    :req "emacs-25.1" "lsp-mode-6.0" "company-0.9.0" "s-1.2.0" "dash-2.11.0"
+    :tag "emacs>=25.1"
+    :added "2021-01-01"
+    :url "https://github.com/tigersoldier/company-lsp"
+    :emacs>= 25.1
+    :ensure t
+    :after lsp-mode company)
 
-(leaf lsp-ui
-  :doc "UI modules for lsp-mode"
-  :req "emacs-26.1" "dash-2.14" "dash-functional-1.2.0" "lsp-mode-6.0" "markdown-mode-2.3"
-  :tag "tools" "languages" "emacs>=26.1"
-  :added "2020-12-19"
-  :url "https://github.com/emacs-lsp/lsp-ui"
-  :emacs>= 26.1
-  :ensure t
-  :package t
-  :after lsp-mode markdown-mode
-  :require t
-  :hook   (lsp-mode . lsp-ui-mode)
-  :costom (;; lsp-ui-doc
-           (lsp-ui-doc-enable . t)
-           (lsp-ui-doc-header . t)
-           (lsp-ui-doc-include-signature . t)
-           (lsp-ui-doc-position . 'top)
-           (lsp-ui-doc-max-width  . 60)
-           (lsp-ui-doc-max-height . 20)
-           (lsp-ui-doc-use-childframe . t)
-           (lsp-ui-doc-use-webkit . nil)
-           
-           ;; lsp-ui-flycheck
-           (lsp-ui-flycheck-enable . t)
-           
-           ;; lsp-ui-sideline
-           (lsp-ui-sideline-enable . t)
-           (lsp-ui-sideline-ignore-duplicate . t)
-           (lsp-ui-sideline-show-symbol . t)
-           (lsp-ui-sideline-show-hover . t)
-           (lsp-ui-sideline-show-diagnostics . t)
-           (lsp-ui-sideline-show-code-actions . t)
-           
-           ;; lsp-ui-imenu
-           (lsp-ui-imenu-enable . nil)
-           (lsp-ui-imenu-kind-position . 'top)
-           
-           ;; lsp-ui-peek
-           (lsp-ui-peek-enable . t)
-           (lsp-ui-peek-always-show . t)
-           (lsp-ui-peek-peek-height . 30)
-           (lsp-ui-peek-list-width . 30)
-           (lsp-ui-peek-fontify . 'always)))
+  (leaf lsp-treemacs
+    :doc "LSP treemacs"
+    :req "emacs-26.1" "dash-2.14.1" "dash-functional-2.14.1" "f-0.20.0" "ht-2.0" "treemacs-2.5" "lsp-mode-6.0"
+    :tag "languages" "emacs>=26.1"
+    :added "2020-12-21"
+    :disabled t
+    :url "https://github.com/emacs-lsp/lsp-treemacs"
+    :emacs>= 26.1
+    :ensure t
+    :after treemacs lsp-mode)
+  )
 
 
-
-(leaf lsp-ivy
-  :doc "LSP ivy integration"
-  :req "emacs-25.1" "dash-2.14.1" "lsp-mode-6.2.1" "ivy-0.13.0"
-  :tag "debug" "languages" "emacs>=25.1"
-  :added "2020-12-19"
-  :url "https://github.com/emacs-lsp/lsp-ivy"
-  :emacs>= 25.1
-  :ensure t
-  :after lsp-mode ivy)
-
-(leaf company-lsp
-  :doc "Company completion backend for lsp-mode."
-  :req "emacs-25.1" "lsp-mode-6.0" "company-0.9.0" "s-1.2.0" "dash-2.11.0"
-  :tag "emacs>=25.1"
-  :added "2021-01-01"
-  :url "https://github.com/tigersoldier/company-lsp"
-  :emacs>= 25.1
-  :ensure t
-  :after lsp-mode company)
-
-(leaf lsp-treemacs
-  :doc "LSP treemacs"
-  :req "emacs-26.1" "dash-2.14.1" "dash-functional-2.14.1" "f-0.20.0" "ht-2.0" "treemacs-2.5" "lsp-mode-6.0"
-  :tag "languages" "emacs>=26.1"
-  :added "2020-12-21"
-  :disabled
-  :url "https://github.com/emacs-lsp/lsp-treemacs"
-  :emacs>= 26.1
-  :ensure t
-  :after treemacs lsp-mode)
 
 (leaf projectile
   :doc "Manage and navigate projects in Emacs easily"
@@ -762,6 +720,8 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
   (when (file-directory-p "~/Projects/gitCode")
     (setq projectile-project-search-path '("~/Projects/gitCode")))
   (setq projectile-switch-project-action #'projectile-dired)
+  :config
+  
   )
 
 (leaf counsel-projectile
@@ -772,37 +732,17 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
   :url "https://github.com/ericdanan/counsel-projectile"
   :ensure t
   :after counsel projectile
-  :config (counsel-projectile-mode))
+  :config (counsel-projectile-mode)
+  (leaf treemacs-projectile
+    :doc "Projectile integration for treemacs"
+    :req "emacs-25.2" "projectile-0.14.0" "treemacs-0.0"
+    :tag "emacs>=25.2"
+    :added "2020-12-22"
+    :url "https://github.com/Alexander-Miller/treemacs"
+    :emacs>= 25.2
+    :ensure t
+    :after projectile lsp-treemacs))
 
-(leaf treemacs-projectile
-  :doc "Projectile integration for treemacs"
-  :req "emacs-25.2" "projectile-0.14.0" "treemacs-0.0"
-  :tag "emacs>=25.2"
-  :added "2020-12-22"
-  :url "https://github.com/Alexander-Miller/treemacs"
-  :emacs>= 25.2
-  :ensure t
-  :after projectile lsp-treemacs)
-
-
-;;;
-;;; Indenting for C
-;;;
-(setq-default c-indent-tabs-mode t     ; Pressing TAB should cause indentation
-              c-indent-level 4         ; A TAB is equivilent to four spaces
-              c-argdecl-indent 0       ; Do not indent argument decl's extra
-              c-tab-always-indent t
-              backward-delete-function nil) ; DO NOT expand tabs when deleting
-(c-add-style "my-c-style" '((c-continued-statement-offset 4))) ; If a statement continues on the next line, indent the continuation by 4
-(defun my-c-mode-hook ()
-  (c-set-style "my-c-style")
-  (c-set-offset 'substatement-open '0) ; brackets should be at same indentation level as the statements they open
-  (c-set-offset 'inline-open '+)
-  (c-set-offset 'block-open '+)
-  (c-set-offset 'brace-list-open '+)   ; all "opens" should be indented by the c-indent-level
-  (c-set-offset 'case-label '+))       ; indent case labels by c-indent-level, too
-(add-hook 'c-mode-hook 'my-c-mode-hook)
-(add-hook 'c++-mode-hook 'my-c-mode-hook)
 
 (leaf markdown-mode
   :ensure t
@@ -898,27 +838,91 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
        (concat "xdg-open "
 	       (file-name-sans-extension filename)
 	       ".docx")))))
+(leaf ka/languages
+  :config
+  ;;;
+  ;;; Indenting for C
+  ;;;
+  (setq-default c-indent-tabs-mode t     ; Pressing TAB should cause indentation
+                c-indent-level 4         ; A TAB is equivilent to four spaces
+                c-argdecl-indent 0       ; Do not indent argument decl's extra
+                c-tab-always-indent t
+                backward-delete-function nil) ; DO NOT expand tabs when deleting
+  (c-add-style "my-c-style" '((c-continued-statement-offset 4))) ; If a statement continues on the next line, indent the continuation by 4
+  (defun my-c-mode-hook ()
+    (c-set-style "my-c-style")
+    (c-set-offset 'substatement-open '0) ; brackets should be at same indentation level as the statements they open
+    (c-set-offset 'inline-open '+)
+    (c-set-offset 'block-open '+)
+    (c-set-offset 'brace-list-open '+)   ; all "opens" should be indented by the c-indent-level
+    (c-set-offset 'case-label '+))       ; indent case labels by c-indent-level, too
+  (add-hook 'c-mode-hook 'my-c-mode-hook)
+  (add-hook 'c++-mode-hook 'my-c-mode-hook)
 
-(leaf typescript-mode
-  :doc "Major mode for editing typescript"
-  :req "emacs-24.3"
-  :tag "languages" "typescript" "emacs>=24.3"
-  :added "2020-12-17"
-  :url "http://github.com/ananthakumaran/typescript.el"
-  :emacs>= 24.3
-  :ensure t
-  :setq (typescript-indent-level . 2)
-  :require t
-  )
+  (leaf typescript-mode
+    :doc "Major mode for editing typescript"
+    :req "emacs-24.3"
+    :tag "languages" "typescript" "emacs>=24.3"
+    :added "2020-12-17"
+    :url "http://github.com/ananthakumaran/typescript.el"
+    :emacs>= 24.3
+    :ensure t
+    :setq (typescript-indent-level . 2)
+    :require t
+    )
+  (leaf flycheck
+    :doc "On-the-fly syntax checking"
+    :emacs>= 24.3
+    :ensure t
+    :bind (("M-n" . flycheck-next-error)
+           ("M-p" . flycheck-previous-error))
+    :custom (flycheck-emacs-lisp-initialize-packages . t)
+    (flycheck-disabled-checkers . '(javascript-jshint javascript-jscs))
+    :init (global-flycheck-mode)
+    :config
+    (leaf flycheck-package
+      :doc "A Flycheck checker for elisp package authors"
+      :ensure t
+      :config
+      (flycheck-package-setup))
 
-(leaf magit
-  :doc "A Git porcelain inside Emacs."
-  :req "emacs-25.1" "async-20200113" "dash-20200524" "git-commit-20200516" "transient-20200601" "with-editor-20200522"
-  :tag "vc" "tools" "git" "emacs>=25.1"
-  :added "2020-12-16"
-  :emacs>= 25.1
-  :ensure t
-  :after git-commit with-editor)
+    (leaf flycheck-elsa
+      :doc "Flycheck for Elsa."
+      :emacs>= 25
+      :ensure t
+      :config
+      (flycheck-elsa-setup))
+
+    (leaf flycheck-rust
+      :doc "Flycheck: Rust additions and Cargo support"
+      :req "emacs-24.1" "flycheck-28" "dash-2.13.0" "seq-2.3" "let-alist-1.0.4"
+      :tag "convenience" "tools" "emacs>=24.1"
+      :added "2021-01-06"
+      :url "https://github.com/flycheck/flycheck-rust"
+      :emacs>= 24.1
+      :ensure t
+      :after flycheck)
+    ))
+
+(leaf ka/build-system
+  :config
+  (leaf meson-mode
+    :doc "Major mode for the Meson build system files"
+    :req "emacs-26.1"
+    :tag "tools" "languages" "emacs>=26.1"
+    :added "2021-01-10"
+    :url "https://github.com/wentasah/meson-mode"
+    :emacs>= 26.1
+    :ensure t)
+
+  (leaf magit
+    :doc "A Git porcelain inside Emacs."
+    :req "emacs-25.1" "async-20200113" "dash-20200524" "git-commit-20200516" "transient-20200601" "with-editor-20200522"
+    :tag "vc" "tools" "git" "emacs>=25.1"
+    :added "2020-12-16"
+    :emacs>= 25.1
+    :ensure t
+    :after git-commit with-editor))
 
 ;; Dockerfile 用の設定
 (leaf dockerfile-mode
@@ -1218,3 +1222,6 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
 ;;; Clear : M-x desktop-clear
 ;;; See: https://www.gnu.org/software/emacs/manual/html_node/emacs/Saving-Emacs-Sessions.html
 (desktop-save-mode 1)
+
+(provide 'init)
+;;; init.el ends here

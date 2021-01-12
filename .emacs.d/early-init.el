@@ -15,7 +15,8 @@
 (set-frame-parameter nil 'fullscreen 'maximized)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-(set-fringe-mode 10)
+(setq-default cursor-type 'bar) ;; カーソル形状
+(set-fringe-mode 10) ;; 各ウィンドウの左右の端に、狭いフリンジを
 (column-number-mode t) ;;モードラインに列番号表示
 
 ;; Disable line numbers for some modes
