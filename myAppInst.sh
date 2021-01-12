@@ -71,3 +71,14 @@ sudo usermod -aG docker ${USER}
 sudo apt-get -y install scons
 ## ccls (language server)
 sudo apt -y install ccls
+## clang
+sudo apt -y install clang
+## My Project
+sudo apt-get -y install libconfuse-dev
+sudo apt-get -y install libiberty-dev
+sudo apt-get -y install uuid-dev
+sudo apt-get -y install uuid-dev meson 
+sudo apt-get -y install clang
+sudo apt-get -y ninja-build
+sudo apt-get -y ccache
+sudo apt-get -y cmake
