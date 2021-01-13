@@ -31,12 +31,10 @@
   (unless (package-installed-p 'leaf)
     (package-refresh-contents)
     (package-install 'leaf)
-    (message "leaf installed...")
     )
   (unless (package-installed-p 'org)
     (package-refresh-contents)
     (package-install 'org)
-    (message "org installed...")
     )
   (require 'leaf)
   (leaf leaf-keywords
@@ -450,6 +448,7 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
   :url "http://company-mode.github.io/"
   :emacs>= 24.3
   :ensure t
+  :after c++-mode c-mode
   :blackout t
   :leaf-defer nil
   :bind ((company-active-map
@@ -932,7 +931,6 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
 
 (defun efs/org-font-setup ()
   ;; Replace list hyphen with dot
-  (message "run org-font-setup")
   (font-lock-add-keywords 'org-mode
                           '(("^ *\\([-]\\) "
                              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
@@ -962,16 +960,13 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
 ;;; https://solist.work/blog/posts/information-organizize-method/
 (leaf org
   :init
-  (message "org init")
   (leaf org-plus-contrib :ensure t :require nil)
 ;;;  :leaf-autoload nil
   :bind (("C-c a" . org-agenda) ("C-c c" . org-capture))
   :hook (org-mode-hook . my-buffer-face-mode-variable)
   ;;  (org-mode-hook . efs/org-font-setup)
   :config
-  (message "org config")
   (efs/org-font-setup)
-  (message "-org config")
   ;; Easy Templates
   ;; Type C-c C-,
   (add-to-list 'org-structure-template-alist
