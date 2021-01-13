@@ -73,6 +73,9 @@ sudo apt-get -y install scons
 sudo apt -y install ccls
 ## clang
 sudo apt -y install clang
+# Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
 ## My Project
 sudo apt-get -y install libconfuse-dev
 sudo apt-get -y install libiberty-dev

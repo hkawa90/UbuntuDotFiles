@@ -6,4 +6,6 @@ if [ -f /usr/bin/google-drive-ocamlfuse ]; then
         fi
 fi
 
+export PATH=$HOME/.cargo/bin:$PATH
 test -r ~/.bashrc && . ~/.bashrc
+source "$HOME/.cargo/env"
