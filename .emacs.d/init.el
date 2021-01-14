@@ -609,7 +609,8 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
   :emacs>= 26.1
   :ensure t
   :after spinner markdown-mode lv
-  :hook (typescript-mode-hook . lsp)
+  :hook ((typescript-mode-hook . lsp)
+         (rust-mode . lsp))
   :custom ((lsp-auto-guess-root . t)
            (lsp-restart . 'ignore)
            (lsp-prefer-flymake . nil)
@@ -869,6 +870,28 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
     :setq (typescript-indent-level . 2)
     :require t
     )
+
+  ;;; See https://emacs-jp.github.io/env/rust
+  (leaf rust-mode
+    :doc "A major emacs mode for editing Rust source code"
+    :req "emacs-25.1"
+    :tag "languages" "emacs>=25.1"
+    :added "2021-01-14"
+    :url "https://github.com/rust-lang/rust-mode"
+    :emacs>= 25.1
+    :ensure t
+    :custom rust-format-on-save t)
+  
+  (leaf cargo
+    :doc "Emacs Minor Mode for Cargo, Rust's Package Manager."
+    :req "emacs-24.3" "rust-mode-0.2.0" "markdown-mode-2.4"
+    :tag "tools" "emacs>=24.3"
+    :added "2021-01-14"
+    :emacs>= 24.3
+    :ensure t
+    :after rust-mode markdown-mode
+    :hook (rust-mode . cargo-minor-mode))
+  
   (leaf flycheck
     :doc "On-the-fly syntax checking"
     :emacs>= 24.3

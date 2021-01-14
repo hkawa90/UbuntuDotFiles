@@ -17,7 +17,7 @@ cd ../
 mkdir Fira
 cd Fira
 wget -q https://github.com/tonsky/FiraCode/releases/download/5.2/Fira_Code_v5.2.zip
-unzip -q Fira_Code_v5.2.zip
+-unzip -q Fira_Code_v5.2.zip
 fc-cache -f
 cd $HOME
 
@@ -75,6 +75,18 @@ sudo apt -y install ccls
 sudo apt -y install clang
 # Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+## Rustfmt
+cargo install --force cargo-make
+wget https://github.com/rust-lang/rustfmt/archive/v1.4.31.zip
+unzip v1.4.31.zip
+cd rustfmt-1.4.31
+cargo make install
+cd ..
+rustup component add rls
+wget https://github.com/rust-analyzer/rust-analyzer/archive/2021-01-11.zip
+unzip 2021-01-11.zip
+cd rust-analyzer-2021-01-11
+cargo xtask install
 
 ## My Project
 sudo apt-get -y install libconfuse-dev
