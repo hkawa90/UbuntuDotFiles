@@ -68,7 +68,15 @@
            (vc-follow-symlinks . t)
            (indent-tabs-mode . nil)
            ;; Save the file specified code with basic utf-8 if it exists
-           (prefer-coding-system . 'utf-8))
+           (prefer-coding-system . 'utf-8)
+           (backup-directory-alist . '((".*" . "~/.emacs_backup")))
+           (version-control . t)  ;; 実行の有無
+           (kept-new-versions . 5)  ;; 最新の保持数
+           (kept-old-versions . 1)  ;; 最古の保持数
+           (delete-old-versions . t)  ;; 範囲外を削除
+           (auto-save-timeout . 10)     ;; 秒   (デフォルト : 30)
+           (auto-save-interval . 100)   ;; 打鍵 (デフォルト : 300)
+           )
   :init
   )
 
@@ -80,6 +88,7 @@
   :custom `((custom-file . ,(locate-user-emacs-file "custom.el"))))
 
 (leaf ka/font-setting
+  :when (display-graphic-p)
   :config
   ;; Fonts
   ;;; fixed pitch font
@@ -126,6 +135,50 @@
                                   ("-cdac$" . 1.3)))
 
   )
+
+(leaf ka/ui
+  :config
+  ;;; Modus Themes (Modus Operandi and Modus Vivendi)
+;;; - high contrast theme
+;;; https://protesilaos.com/modus-themes/
+
+  (leaf modus-themes
+    :doc "Highly accessible themes (WCAG AAA)"
+    :req "emacs-26.1"
+    :tag "accessibility" "theme" "faces" "emacs>=26.1"
+    :added "2021-01-03"
+    :url "https://gitlab.com/protesilaos/modus-themes"
+    :emacs>= 26.1
+    :ensure t
+    :bind ("<f2>" . modus-themes-toggle)
+    :init
+    (setq modus-themes-slanted-constructs t
+          modus-themes-bold-constructs nil
+          modus-themes-mode-line 'moody)
+    :config
+    ;; Load the theme of your choice
+    (modus-themes-load-operandi)
+    ;; ;; OR
+    ;; (load-theme 'modus-operandi t)
+    )
+  ;; font install
+  ;; M-x all-the-icons-install-fonts
+  ;; fc-cache -f -v
+  (leaf all-the-icons
+    :doc "A library for inserting Developer icons"
+    :req "emacs-24.3" "memoize-1.0.1"
+    :tag "lisp" "convenient" "emacs>=24.3"
+    :added "2020-12-19"
+    :url "https://github.com/domtronn/all-the-icons.el"
+    :emacs>= 24.3
+    :ensure t
+    :after memoize)
+  ;; カーソル行ハイライト
+  (setq hl-line-face 'underline) ; 下線
+  (global-hl-line-mode)
+  )
+
+
 (leaf ka/util
   :config
   (leaf recentf
@@ -137,6 +190,46 @@
     (setq recentf-max-saved-items 1000)            ;; recentf に保存するファイルの数
     (setq recentf-exclude '(".recentf"))           ;; .recentf自体は含まない
     )
+
+  (leaf search-web
+    :doc "Post web search queries using `browse-url'."
+    :added "2020-12-31"
+    :require t ; これがないと、うまくロードできなかった
+    :ensure t
+    :bind (("s-s" . hydra-search-web/body))
+    :hydra
+    (hydra-search-web (:color red :hint nil)
+                      "
+Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _w_eblio  _p_〒  _k_古語  _r_類語 _._close"
+                      ("a" (search-web-dwim "amazon jp"))
+                      ("e" (search-web-dwim "eijiro"))
+                      ("g" (search-web-dwim "google"))
+                      ("m" (search-web-dwim "google maps"))
+                      ("h" (search-web-dwim "github"))
+                      ("q" (search-web-dwim "qitta"))
+                      ("w" (search-web-dwim "weblio"))
+                      ("p" (search-web-dwim "post"))
+                      ("k" (search-web-dwim "kobun"))
+                      ("r" (search-web-dwim "ruigo"))
+                      ("t" google-translate-auto)
+                      ("q" nil)
+                      ("." nil :color blue))
+    :config
+    (add-to-list 'search-web-engines '("weblio" "http://weblio.jp/content/%s" nil))
+    (add-to-list 'search-web-engines '("kobun" "http://kobun.weblio.jp/content/%s" nil))
+    (add-to-list 'search-web-engines '("ruigo" "http://thesaurus.weblio.jp/content/%s" nil))
+    (add-to-list 'search-web-engines '("github" "https://github.com/search?utf8=✓&q=%s&ref=simplesearch" nil))
+    (add-to-list 'search-web-engines '("qitta" "https://qiita.com/search?q=%s" nil))
+    (add-to-list 'search-web-engines '("post" "https://postcode.goo.ne.jp/search/q/%s/" nil))
+    (add-to-list 'search-web-engines '("earth" "https://earth.google.com/web/search/%s/" nil)))
+
+  ;;使い捨てファイルを開く
+  ;; TODO: org-modeで代替できそうなので将来削除するかも
+  (leaf open-junk-file
+    :ensure t
+    :config
+    (setq open-junk-file-format "~/Documents/org/junk/%Y%m%d.")
+    (setq open-junk-file-find-file-function 'find-file))
 
   (leaf autorevert
     :doc "revert buffers when files on disk change"
@@ -196,7 +289,7 @@
     :added "2020-12-17"
     :url "https://github.com/emacs-dashboard/emacs-dashboard"
     :emacs>= 25.3
-    :require t
+    :require nil
     :ensure t
     :after page-break-lines org
     :preface (dashboard-setup-startup-hook)
@@ -292,45 +385,6 @@
   "Search TKK."
   (list 427110 1469889687))
 
-;;;使い捨てファイルを開く
-;;; TODO: org-modeで代替できそうなので将来削除するかも
-(leaf open-junk-file
-  :ensure t
-  :config
-  (setq open-junk-file-format "~/Documents/org/junk/%Y%m%d.")
-  (setq open-junk-file-find-file-function 'find-file))
-
-(leaf search-web
-  :doc "Post web search queries using `browse-url'."
-  :added "2020-12-31"
-  :require t ; これがないと、うまくロードできなかった
-  :ensure t
-  :bind (("s-s" . hydra-search-web/body))
-  :hydra
-  (hydra-search-web (:color red :hint nil)
-                    "
-Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _w_eblio  _p_〒  _k_古語  _r_類語 _._close"
-                    ("a" (search-web-dwim "amazon jp"))
-                    ("e" (search-web-dwim "eijiro"))
-                    ("g" (search-web-dwim "google"))
-                    ("m" (search-web-dwim "google maps"))
-                    ("h" (search-web-dwim "github"))
-                    ("q" (search-web-dwim "qitta"))
-                    ("w" (search-web-dwim "weblio"))
-                    ("p" (search-web-dwim "post"))
-                    ("k" (search-web-dwim "kobun"))
-                    ("r" (search-web-dwim "ruigo"))
-                    ("t" google-translate-auto)
-                    ("q" nil)
-                    ("." nil :color blue))
-  :config
-  (add-to-list 'search-web-engines '("weblio" "http://weblio.jp/content/%s" nil))
-  (add-to-list 'search-web-engines '("kobun" "http://kobun.weblio.jp/content/%s" nil))
-  (add-to-list 'search-web-engines '("ruigo" "http://thesaurus.weblio.jp/content/%s" nil))
-  (add-to-list 'search-web-engines '("github" "https://github.com/search?utf8=✓&q=%s&ref=simplesearch" nil))
-  (add-to-list 'search-web-engines '("qitta" "https://qiita.com/search?q=%s" nil))
-  (add-to-list 'search-web-engines '("post" "https://postcode.goo.ne.jp/search/q/%s/" nil))
-  (add-to-list 'search-web-engines '("earth" "https://earth.google.com/web/search/%s/" nil)))
 
 ;;;---------------------
 
@@ -498,22 +552,7 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
   (moody-replace-vc-mode))
 
 
-;; font install
-;; M-x all-the-icons-install-fonts
-;; fc-cache -f -v
-(leaf all-the-icons
-  :doc "A library for inserting Developer icons"
-  :req "emacs-24.3" "memoize-1.0.1"
-  :tag "lisp" "convenient" "emacs>=24.3"
-  :added "2020-12-19"
-  :url "https://github.com/domtronn/all-the-icons.el"
-  :emacs>= 24.3
-  :ensure t
-  :after memoize)
 
-;; カーソル行ハイライト
-(setq hl-line-face 'underline) ; 下線
-(global-hl-line-mode)
 
 (leaf mozc
   :ensure t
@@ -880,7 +919,7 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
     :url "https://github.com/rust-lang/rust-mode"
     :emacs>= 25.1
     :ensure t
-    :custom rust-format-on-save t)
+    :custom (rust-format-on-save . t))
   
   (leaf cargo
     :doc "Emacs Minor Mode for Cargo, Rust's Package Manager."
@@ -923,7 +962,8 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
       :url "https://github.com/flycheck/flycheck-rust"
       :emacs>= 24.1
       :ensure t
-      :after flycheck)
+      :after flycheck
+      :hook (rust-mode-hook . flycheck-rust-setup))
     ))
 
 (leaf ka/build-system
@@ -935,7 +975,8 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
     :added "2021-01-10"
     :url "https://github.com/wentasah/meson-mode"
     :emacs>= 26.1
-    :ensure t)
+    :ensure t
+    :hook (meson-mode-hook . company-mode))
 
   (leaf magit
     :doc "A Git porcelain inside Emacs."
@@ -944,13 +985,14 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
     :added "2020-12-16"
     :emacs>= 25.1
     :ensure t
-    :after git-commit with-editor))
-
-;; Dockerfile 用の設定
-(leaf dockerfile-mode
-  :ensure t
-  :mode (("Dockerfile" . dockerfile-mode))
+    :after git-commit with-editor)
+  ;; Dockerfile 用の設定
+  (leaf dockerfile-mode
+    :ensure t
+    :mode (("Dockerfile" . dockerfile-mode))
+    )
   )
+
 
 (defun efs/org-font-setup ()
   ;; Replace list hyphen with dot
@@ -1146,7 +1188,16 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
       :added "2021-01-05"
       :url "https://orgmode.org"
       :when (executable-find "makefile"))
-    
+
+    (leaf org-bullets
+      :doc "Show bullets in org-mode as UTF-8 characters"
+      :added "2021-01-04"
+      :url "https://github.com/integral-dw/org-bullets"
+      :ensure t
+      :custom (org-bullets-bullet-list . '("◉" "○" "●" "○" "●" "○" "●"))
+      :hook (org-mode-hook . org-bullets-mode)
+      )
+
     (org-babel-do-load-languages 'org-babel-load-languages
                                  '(
                                    (shell . t)
@@ -1181,14 +1232,6 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
   )
 
 
-(leaf org-bullets
-  :doc "Show bullets in org-mode as UTF-8 characters"
-  :added "2021-01-04"
-  :url "https://github.com/integral-dw/org-bullets"
-  :ensure t
-  :custom (org-bullets-bullet-list . '("◉" "○" "●" "○" "●" "○" "●"))
-  :hook (org-mode-hook . org-bullets-mode)
-  )
 
 ;; Ref. https://github.com/daviwil/emacs-from-scratch
 (defun efs/org-mode-visual-fill ()
@@ -1205,30 +1248,6 @@ Search:  _a_mazon  _g_oogle  _t_ranslate  _e_ijiro  _m_aps  git_h_ub  _q_itta  _
   :emacs>= 25.1
   :ensure t
   :hook (org-mode . efs/org-mode-visual-fill))
-
-;;; Modus Themes (Modus Operandi and Modus Vivendi)
-;;; - high contrast theme
-;;; https://protesilaos.com/modus-themes/
-
-(leaf modus-themes
-  :doc "Highly accessible themes (WCAG AAA)"
-  :req "emacs-26.1"
-  :tag "accessibility" "theme" "faces" "emacs>=26.1"
-  :added "2021-01-03"
-  :url "https://gitlab.com/protesilaos/modus-themes"
-  :emacs>= 26.1
-  :ensure t
-  :bind ("<f2>" . modus-themes-toggle)
-  :init
-  (setq modus-themes-slanted-constructs t
-        modus-themes-bold-constructs nil
-        modus-themes-mode-line 'moody)
-  :config
-  ;; Load the theme of your choice
-  (modus-themes-load-operandi)
-  ;; ;; OR
-  ;; (load-theme 'modus-operandi t)
-  )
 
 ;;; Emacs session
 
